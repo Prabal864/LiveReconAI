@@ -11,6 +11,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class JwtUtil {
     @Value("${app.jwt.secret}")
     private String secretKey;
