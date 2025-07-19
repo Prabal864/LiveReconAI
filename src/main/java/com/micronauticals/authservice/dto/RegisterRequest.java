@@ -1,4 +1,4 @@
-package com.micronauticals.accountsservice.dto;
+package com.micronauticals.authservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
