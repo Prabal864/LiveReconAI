@@ -1,6 +1,6 @@
-package com.micronauticals.accountsservice.entity;
+package com.micronauticals.authservice.entity;
 
-import com.micronauticals.accountsservice.enums.UserRole;
+import com.micronauticals.authservice.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

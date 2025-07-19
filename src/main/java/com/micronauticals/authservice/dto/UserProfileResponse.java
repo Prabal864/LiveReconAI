@@ -1,15 +1,16 @@
-package com.micronauticals.accountsservice.dto;
-import com.micronauticals.accountsservice.enums.UserRole;
+package com.micronauticals.authservice.dto;
+import com.micronauticals.authservice.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDto {
+public class UserProfileResponse {
     private Long id;
     private String username;
     private String email;
@@ -17,4 +18,5 @@ public class UserDto {
     private String lastName;
     private String phoneNumber;
     private UserRole role;
+    private LocalDateTime createdAt;
 }

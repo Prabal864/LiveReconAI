@@ -1,6 +1,6 @@
-package com.micronauticals.accountsservice.repository;
+package com.micronauticals.authservice.repository;
 
-import com.micronauticals.accountsservice.entity.User;
+import com.micronauticals.authservice.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

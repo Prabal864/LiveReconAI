@@ -1,4 +1,5 @@
-package com.micronauticals.accountsservice.dto;
+package com.micronauticals.authservice.dto;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,9 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthResponse {
-    private String accessToken;
-    private String refreshToken;
-    private Long userId;
+public class LoginRequest {
     private String username;
+    private String password;
 }

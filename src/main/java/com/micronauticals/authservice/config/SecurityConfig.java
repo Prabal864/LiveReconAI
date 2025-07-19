@@ -1,6 +1,6 @@
-package com.micronauticals.accountsservice.config;
+package com.micronauticals.authservice.config;
 
-import com.micronauticals.accountsservice.filter.JwtAuthenticationFilter;
+import com.micronauticals.authservice.filter.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

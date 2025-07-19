@@ -1,6 +1,6 @@
-package com.micronauticals.accountsservice.filter;
+package com.micronauticals.authservice.filter;
 
-import com.micronauticals.accountsservice.utils.JwtUtil;
+import com.micronauticals.authservice.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
