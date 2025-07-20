@@ -74,7 +74,8 @@ public class AuthController {
         String token = authHeader.substring(7); // Remove "Bearer " prefix
         
         if (token.trim().isEmpty()) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Token cannot be empty"));
         }
         
         return ResponseEntity.ok(userService.verifyTokenForInternalService(token));
