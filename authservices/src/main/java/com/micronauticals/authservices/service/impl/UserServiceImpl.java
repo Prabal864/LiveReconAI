@@ -3,6 +3,8 @@ package com.micronauticals.authservices.service.impl;
 import com.micronauticals.authservices.dto.*;
 import com.micronauticals.authservices.entity.User;
 import com.micronauticals.authservices.enums.UserRole;
+import com.micronauticals.authservices.exception.ResourceNotFoundException;
+import com.micronauticals.authservices.exception.UserAlreadyExistsException;
 import com.micronauticals.authservices.repository.UserRepository;
 import com.micronauticals.authservices.service.UserService;
 import com.micronauticals.authservices.utils.JwtUtil;
@@ -11,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,16 +36,16 @@ public class UserServiceImpl implements UserService {
     public AuthResponse registerUser(RegisterRequest registerRequest) {
         // Check if username or email already exists
         if (userRepository.existsByUsername(registerRequest.getUsername())) {
-            throw new RuntimeException("Username is already taken");
+            throw new UserAlreadyExistsException("Username is already taken");
         }
 
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new RuntimeException("Email is already in use");
+            throw new UserAlreadyExistsException("Email is already in use");
         }
 
         if (registerRequest.getPhoneNumber() != null &&
                 userRepository.existsByPhoneNumber(registerRequest.getPhoneNumber())) {
-            throw new RuntimeException("Phone number is already in use");
+            throw new UserAlreadyExistsException("Phone number is already in use");
         }
 
         // Create new user
@@ -68,15 +71,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AuthResponse authenticateUser(LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsername(),
-                        loginRequest.getPassword()
-                )
-        );
+        Authentication authentication = null;
+        try {
+            authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getUsername(),
+                            loginRequest.getPassword()
+                    )
+            );
+        } catch(org.springframework.security.core.AuthenticationException e){
+            throw new com.micronauticals.authservices.exception.AuthenticationException("Invalid username or password");
+        }
 
         User user = userRepository.findByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         String role = user.getRole().name();
 
@@ -97,7 +105,7 @@ public class UserServiceImpl implements UserService {
             // First validate the token structure and signature
             if (!jwtUtil.validateToken(refreshToken)) {
                 log.error("Invalid refresh token provided");
-                throw new RuntimeException("Invalid refresh token");
+                throw new com.micronauticals.authservices.exception.AuthenticationException("Invalid refresh token");
             }
 
             // Extract username from the token
@@ -105,7 +113,7 @@ public class UserServiceImpl implements UserService {
 
             if (username == null || username.trim().isEmpty()) {
                 log.error("Refresh token contains empty or null username");
-                throw new RuntimeException("Invalid refresh token: missing username");
+                throw new com.micronauticals.authservices.exception.AuthenticationException("Invalid refresh token: missing username");
             }
 
             log.debug("Attempting to refresh token for username: {}", username);
@@ -117,7 +125,7 @@ public class UserServiceImpl implements UserService {
                 log.error("User not found in database for username: {} from refresh token", username);
                 // Clear any existing authentication context
                 SecurityContextHolder.clearContext();
-                throw new RuntimeException("User account no longer exists. Please login again.");
+                throw new com.micronauticals.authservices.exception.AuthenticationException("User account no longer exists. Please login again.");
             }
 
             User user = userOptional.get();
@@ -145,7 +153,7 @@ public class UserServiceImpl implements UserService {
             if (e instanceof RuntimeException) {
                 throw e;
             } else {
-                throw new RuntimeException("Token refresh failed: " + e.getMessage());
+                throw new com.micronauticals.authservices.exception.AuthenticationException("Token refresh failed: " + e.getMessage());
             }
         }
     }
@@ -159,7 +167,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserProfileResponse getUserProfile(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         return UserProfileResponse.builder()
                 .id(user.getId())
@@ -176,7 +184,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserProfileResponse updateUserProfile(String username, ProfileUpdateRequest updateRequest) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (updateRequest.getFirstName() != null) {
             user.setFirstName(updateRequest.getFirstName());
@@ -189,7 +197,7 @@ public class UserServiceImpl implements UserService {
         if (updateRequest.getPhoneNumber() != null &&
                 !updateRequest.getPhoneNumber().equals(user.getPhoneNumber())) {
             if (userRepository.existsByPhoneNumber(updateRequest.getPhoneNumber())) {
-                throw new RuntimeException("Phone number is already in use");
+                throw new UserAlreadyExistsException("Phone number is already in use");
             }
             user.setPhoneNumber(updateRequest.getPhoneNumber());
         }
@@ -230,7 +238,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, Object> verifyTokenForInternalService(String token) {
         if (!jwtUtil.validateToken(token)) {
-            throw new RuntimeException("Invalid token");
+            throw new com.micronauticals.authservices.exception.AuthenticationException("Invalid token");
         }
 
         String username = jwtUtil.getUsernameFromToken(token);
