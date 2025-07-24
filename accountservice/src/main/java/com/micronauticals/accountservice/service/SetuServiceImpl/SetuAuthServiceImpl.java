@@ -75,6 +75,7 @@ public class SetuAuthServiceImpl implements SetuAuthService {
         }
     }
 
+    @Override
     public Mono<ConsentResponse> createConsent(ConsentRequestDTO requestDTO) {
         if (accessToken == null) {
             return Mono.error(new SetuLoginException("Access token not available. Please login first."));
@@ -101,6 +102,7 @@ public class SetuAuthServiceImpl implements SetuAuthService {
 
     }
 
+    @Override
     public Mono<ConsentStatusResponseDTO> getConsentStatus(String consentId,boolean expanded) {
         if (accessToken == null) {
             return Mono.error(new SetuLoginException("Access token not available. Please login first."));
@@ -128,7 +130,65 @@ public class SetuAuthServiceImpl implements SetuAuthService {
                 .doOnError(error -> log.error("Error occurred while fetching consent status", error));
     }
 
+    @Override
+    public Mono<ConsentDataSessionResponseDTO> getDataSessionByConsentId(String consentId){
 
+        if (accessToken == null) {
+            return Mono.error(new SetuLoginException("Access token not available. Please login first."));
+        }
+
+        WebClient webClient = webClientBuilder.build();
+
+        String url = STR."https://fiu-sandbox.setu.co/v2/consents/\{consentId}/data-sessions";
+
+        return webClient.get()
+                .uri(url)
+                .header(HttpHeaders.AUTHORIZATION, STR."Bearer \{accessToken}")
+                .header("x-product-instance-id", "681c4095-7cb7-402b-9f48-5c747c01cf95")
+                .retrieve()
+                .onStatus(status -> !status.is2xxSuccessful(), response -> {
+                    log.error("Failed to fetch consent status. HTTP Status: {}", response.statusCode());
+                    return response.bodyToMono(String.class)
+                            .flatMap(errorBody -> {
+                                log.error("Error body: {}", errorBody);
+                                return Mono.error(new RuntimeException("Error fetching consent status: " + errorBody));
+                            });
+                })
+                .bodyToMono(ConsentDataSessionResponseDTO.class)
+                .doOnNext(response -> log.info("Consent status fetched successfully: {}", response))
+                .doOnError(error -> log.error("Error occurred while fetching consent status", error));
+
+    }
+
+    @Override
+    public Mono<    FinancialDataFetchResponseDTO> getFiData(String sessionId){
+
+        if (accessToken == null) {
+            return Mono.error(new SetuLoginException("Access token not available. Please login first."));
+        }
+
+        WebClient webClient = webClientBuilder.build();
+
+        String url = STR."https://fiu-sandbox.setu.co/v2/sessions/\{sessionId}";
+
+        return webClient.get()
+                .uri(url)
+                .header(HttpHeaders.AUTHORIZATION, STR."Bearer \{accessToken}")
+                .header("x-product-instance-id", "681c4095-7cb7-402b-9f48-5c747c01cf95")
+                .retrieve()
+                .onStatus(status -> !status.is2xxSuccessful(), response -> {
+                    log.error("Failed to fetch consent status. HTTP Status: {}", response.statusCode());
+                    return response.bodyToMono(String.class)
+                            .flatMap(errorBody -> {
+                                log.error("Error body: {}", errorBody);
+                                return Mono.error(new RuntimeException("Error fetching consent status: " + errorBody));
+                            });
+                })
+                .bodyToMono(FinancialDataFetchResponseDTO.class)
+                .doOnNext(response -> log.info("Consent status fetched successfully: {}", response))
+                .doOnError(error -> log.error("Error occurred while fetching consent status", error));
+
+    }
 
     private String sanitizeErrorMessage(String errorBody) {
         if (errorBody == null || errorBody.trim().isEmpty()) {

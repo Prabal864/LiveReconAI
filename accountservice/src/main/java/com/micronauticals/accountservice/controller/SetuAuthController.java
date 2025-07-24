@@ -41,4 +41,30 @@ public class SetuAuthController {
                     return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null));
                 });
     }
+
+    @GetMapping("/{consentId}/consentDataSession")
+    public Mono<ResponseEntity<ConsentDataSessionResponseDTO>> getConsentDataSessions(
+            @PathVariable String consentId) {
+
+        return setuAuthService.getDataSessionByConsentId(consentId)
+                .map(ResponseEntity::ok)
+                .onErrorResume(error -> {
+                    // Optionally log the error here
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null));
+                });
+    }
+
+
+    @GetMapping("/{sessionId}/getFiData")
+    public Mono<ResponseEntity<FinancialDataFetchResponseDTO>> getFiDataBySessionId(
+            @PathVariable String sessionId) {
+
+        return setuAuthService.getFiData(sessionId)
+                .map(ResponseEntity::ok)
+                .onErrorResume(error -> {
+                    // Optionally log the error here
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null));
+                });
+    }
+
 }
