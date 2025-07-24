@@ -1,12 +1,10 @@
 package com.micronauticals.accountservice.controller;
 
 
-import com.micronauticals.accountservice.Dto.ConsentRequestDTO;
-import com.micronauticals.accountservice.Dto.ConsentResponse;
-import com.micronauticals.accountservice.Dto.SetuLoginRequest;
-import com.micronauticals.accountservice.Dto.SetuLoginResponse;
+import com.micronauticals.accountservice.Dto.*;
 import com.micronauticals.accountservice.service.SetuServiceInterface.SetuAuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -29,5 +27,18 @@ public class SetuAuthController {
         return setuAuthService.createConsent(consentRequestDTO)
                 .map(ResponseEntity::ok)
                 .onErrorResume(e -> Mono.just(ResponseEntity.status(500).build()));
+    }
+
+    @GetMapping("/{consentId}/status")
+    public Mono<ResponseEntity<ConsentStatusResponseDTO>> getConsentStatus(
+            @PathVariable String consentId,
+            @RequestParam(defaultValue = "false") boolean expanded) {
+
+        return setuAuthService.getConsentStatus(consentId, expanded)
+                .map(ResponseEntity::ok)
+                .onErrorResume(error -> {
+                    // Optionally log the error here
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null));
+                });
     }
 }

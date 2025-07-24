@@ -1,12 +1,10 @@
 package com.micronauticals.accountservice.service.SetuServiceInterface;
 
-import com.micronauticals.accountservice.Dto.ConsentRequestDTO;
-import com.micronauticals.accountservice.Dto.ConsentResponse;
-import com.micronauticals.accountservice.Dto.SetuLoginRequest;
-import com.micronauticals.accountservice.Dto.SetuLoginResponse;
+import com.micronauticals.accountservice.Dto.*;
 import reactor.core.publisher.Mono;
 
 public interface SetuAuthService {
     SetuLoginResponse login(SetuLoginRequest request);
     Mono<ConsentResponse> createConsent(ConsentRequestDTO request);
+    Mono<ConsentStatusResponseDTO> getConsentStatus(String consentId,boolean expanded);
 }

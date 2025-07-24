@@ -1,12 +1,8 @@
 package com.micronauticals.accountservice.service.SetuServiceImpl;
-import com.micronauticals.accountservice.Dto.ConsentRequestDTO;
-import com.micronauticals.accountservice.Dto.ConsentResponse;
-import com.micronauticals.accountservice.Dto.SetuLoginRequest;
-import com.micronauticals.accountservice.Dto.SetuLoginResponse;
+import com.micronauticals.accountservice.Dto.*;
 import com.micronauticals.accountservice.exception.SetuLoginException;
 import com.micronauticals.accountservice.service.SetuServiceInterface.SetuAuthService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -104,6 +100,34 @@ public class SetuAuthServiceImpl implements SetuAuthService {
                 .doOnError(error -> log.error("Error occurred during consent creation", error));
 
     }
+
+    public Mono<ConsentStatusResponseDTO> getConsentStatus(String consentId,boolean expanded) {
+        if (accessToken == null) {
+            return Mono.error(new SetuLoginException("Access token not available. Please login first."));
+        }
+
+        WebClient webClient = webClientBuilder.build();
+
+        String url = STR."https://fiu-sandbox.setu.co/v2/consents/\{consentId}?expanded=\{expanded}";
+
+        return webClient.get()
+                .uri(url)
+                .header(HttpHeaders.AUTHORIZATION, STR."Bearer \{accessToken}")
+                .header("x-product-instance-id", "681c4095-7cb7-402b-9f48-5c747c01cf95")
+                .retrieve()
+                .onStatus(status -> !status.is2xxSuccessful(), response -> {
+                    log.error("Failed to fetch consent status. HTTP Status: {}", response.statusCode());
+                    return response.bodyToMono(String.class)
+                            .flatMap(errorBody -> {
+                                log.error("Error body: {}", errorBody);
+                                return Mono.error(new RuntimeException("Error fetching consent status: " + errorBody));
+                            });
+                })
+                .bodyToMono(ConsentStatusResponseDTO.class)
+                .doOnNext(response -> log.info("Consent status fetched successfully: {}", response))
+                .doOnError(error -> log.error("Error occurred while fetching consent status", error));
+    }
+
 
 
     private String sanitizeErrorMessage(String errorBody) {
