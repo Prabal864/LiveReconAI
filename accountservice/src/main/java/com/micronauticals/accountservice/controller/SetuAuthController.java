@@ -1,7 +1,9 @@
 package com.micronauticals.accountservice.controller;
 
 
-import com.micronauticals.accountservice.Dto.*;
+import com.micronauticals.accountservice.Dto.request.ConsentRequestDTO;
+import com.micronauticals.accountservice.Dto.request.SetuLoginRequest;
+import com.micronauticals.accountservice.Dto.response.*;
 import com.micronauticals.accountservice.service.SetuServiceInterface.SetuAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -60,6 +62,17 @@ public class SetuAuthController {
             @PathVariable String sessionId) {
 
         return setuAuthService.getFiData(sessionId)
+                .map(ResponseEntity::ok)
+                .onErrorResume(error -> {
+                    // Optionally log the error here
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null));
+                });
+    }
+
+    @PostMapping("/{consentID}/revokeConsent")
+    public Mono<ResponseEntity<RevokeConsentResponse>> revokeConsentByConsentID(
+            @PathVariable String consentID) {
+        return setuAuthService.revokeConsent(consentID)
                 .map(ResponseEntity::ok)
                 .onErrorResume(error -> {
                     // Optionally log the error here
