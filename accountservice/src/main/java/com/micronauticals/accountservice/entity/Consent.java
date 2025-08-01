@@ -64,7 +64,6 @@ public class Consent {
     @Column
     private Boolean enableAdditionalPhoneNumber;
 
-    // Nested classes mapped from DTO
 
     @Embeddable
     @Data
@@ -220,10 +219,10 @@ public class Consent {
     }
 
     @Embeddable
-    @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @Data
     public static class AccountLinked {
         // Example fields, update as needed
         @Column

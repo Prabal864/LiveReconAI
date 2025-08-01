@@ -3,7 +3,6 @@ package com.micronauticals.accountservice.Dto.response;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
-
 import java.util.List;
 
 @Data
@@ -28,6 +27,8 @@ public class ConsentResponse {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Detail {
         private List<String> fiTypes;
         private Purpose purpose;
@@ -44,6 +45,8 @@ public class ConsentResponse {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Purpose {
         private String refUri;
         private Category category;
@@ -53,13 +56,16 @@ public class ConsentResponse {
 
     @Data
     @Builder
-
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Category {
         private String type;
     }
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class DataLife {
         private String unit;
         private Integer value;
@@ -67,6 +73,8 @@ public class ConsentResponse {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Frequency {
         private String unit;
         private Integer value;
@@ -74,6 +82,8 @@ public class ConsentResponse {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class DataRange {
         private String from;
         private String to;
@@ -81,12 +91,17 @@ public class ConsentResponse {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Context {
-        // Add actual context fields when known
+        private String key;
+        private String value;
     }
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Usage {
         private String count;
         private String lastUsed;
@@ -94,7 +109,11 @@ public class ConsentResponse {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class AccountLinked {
-        // Add actual account fields when known
+        private String accountId;
+        private String maskedAccountNumber;
+        private String bankName;
     }
 }
