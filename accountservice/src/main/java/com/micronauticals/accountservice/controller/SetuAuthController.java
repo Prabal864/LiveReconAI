@@ -3,7 +3,12 @@ package com.micronauticals.accountservice.controller;
 
 import com.micronauticals.accountservice.Dto.request.ConsentRequestDTO;
 import com.micronauticals.accountservice.Dto.request.SetuLoginRequest;
-import com.micronauticals.accountservice.Dto.response.*;
+import com.micronauticals.accountservice.Dto.response.consent.ConsentDataSessionResponseDTO;
+import com.micronauticals.accountservice.Dto.response.consent.ConsentResponse;
+import com.micronauticals.accountservice.Dto.response.consent.ConsentStatusResponseDTO;
+import com.micronauticals.accountservice.Dto.response.consent.RevokeConsentResponse;
+import com.micronauticals.accountservice.Dto.response.financialdata.FIPResponseDTO;
+import com.micronauticals.accountservice.Dto.response.financialdata.SetuLoginResponse;
 import com.micronauticals.accountservice.service.SetuServiceInterface.SetuAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -58,7 +63,7 @@ public class SetuAuthController {
 
 
     @GetMapping("/{sessionId}/getFiData")
-    public Mono<ResponseEntity<FinancialDataFetchResponseDTO>> getFiDataBySessionId(
+    public Mono<ResponseEntity<FIPResponseDTO>> getFiDataBySessionId(
             @PathVariable String sessionId) {
 
         return setuAuthService.getFiData(sessionId)
@@ -75,7 +80,6 @@ public class SetuAuthController {
         return setuAuthService.revokeConsent(consentID)
                 .map(ResponseEntity::ok)
                 .onErrorResume(error -> {
-                    // Optionally log the error here
                     return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null));
                 });
     }
