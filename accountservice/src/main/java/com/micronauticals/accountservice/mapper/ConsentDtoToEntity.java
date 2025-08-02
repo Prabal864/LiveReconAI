@@ -1,7 +1,7 @@
 package com.micronauticals.accountservice.mapper;
 
-import com.micronauticals.accountservice.Dto.response.ConsentResponse;
-import com.micronauticals.accountservice.entity.Consent;
+import com.micronauticals.accountservice.Dto.response.consent.ConsentResponse;
+import com.micronauticals.accountservice.entity.consent.Consent;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
