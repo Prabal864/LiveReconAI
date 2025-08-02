@@ -1,4 +1,4 @@
-package com.micronauticals.accountservice.entity;
+package com.micronauticals.accountservice.entity.financialdata;
 
 import lombok.*;
 import java.util.List;
