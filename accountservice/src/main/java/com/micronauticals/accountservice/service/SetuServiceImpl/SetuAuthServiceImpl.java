@@ -1,6 +1,19 @@
 package com.micronauticals.accountservice.service.SetuServiceImpl;
-import com.micronauticals.accountservice.Dto.*;
+import com.micronauticals.accountservice.Dto.request.ConsentRequestDTO;
+import com.micronauticals.accountservice.Dto.request.SetuLoginRequest;
+import com.micronauticals.accountservice.Dto.response.consent.ConsentDataSessionResponseDTO;
+import com.micronauticals.accountservice.Dto.response.consent.ConsentResponse;
+import com.micronauticals.accountservice.Dto.response.consent.ConsentStatusResponseDTO;
+import com.micronauticals.accountservice.Dto.response.consent.RevokeConsentResponse;
+import com.micronauticals.accountservice.Dto.response.financialdata.FIPResponseDTO;
+import com.micronauticals.accountservice.Dto.response.financialdata.SetuLoginResponse;
+import com.micronauticals.accountservice.entity.consent.Consent;
+import com.micronauticals.accountservice.entity.financialdata.FiDataBundle;
 import com.micronauticals.accountservice.exception.SetuLoginException;
+import com.micronauticals.accountservice.mapper.ConsentDtoToEntity;
+import com.micronauticals.accountservice.mapper.FIPResponseDtoToEntityMapper;
+import com.micronauticals.accountservice.repository.ConsentRepository;
+import com.micronauticals.accountservice.repository.FIDataRepository;
 import com.micronauticals.accountservice.service.SetuServiceInterface.SetuAuthService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -9,6 +22,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.util.Map;
@@ -17,6 +31,10 @@ import java.util.Map;
 public class SetuAuthServiceImpl implements SetuAuthService {
 
     private final WebClient.Builder webClientBuilder;
+    private final ConsentRepository consentRepository;
+    private final ConsentDtoToEntity consentDtoToEntity;
+    private final FIDataRepository fiDataRepository;
+    private final FIPResponseDtoToEntityMapper fipResponseDtoToEntityMapper;
 
     private static final String SETU_LOGIN_URL = "https://orgservice-prod.setu.co/v1/users/login";
     private static final String SETU_CONSENT_URL = "https://fiu-sandbox.setu.co/v2/consents";
@@ -59,7 +77,7 @@ public class SetuAuthServiceImpl implements SetuAuthService {
                 throw new SetuLoginException("Missing access token in Setu response");
             }
 
-            this.accessToken = (String) result.get("access_token"); // ✅ store token
+            this.accessToken = (String) result.get("access_token");
             this.refreshToken = (String) result.get("refresh_token");
 
             log.info("Received access token from Setu");
@@ -97,13 +115,19 @@ public class SetuAuthServiceImpl implements SetuAuthService {
                             });
                 })
                 .bodyToMono(ConsentResponse.class)
+                .flatMap(response -> Mono.fromCallable(() -> {
+                    Consent consent = consentDtoToEntity.mapToEntity(response);
+                    consentRepository.save(consent);
+                    log.info("Consent saved in DB with ID: {}", consent.getId());
+                    return response;
+                }).subscribeOn(Schedulers.boundedElastic()))
                 .doOnNext(response -> log.info("Consent created successfully: {}", response))
                 .doOnError(error -> log.error("Error occurred during consent creation", error));
 
     }
 
     @Override
-    public Mono<ConsentStatusResponseDTO> getConsentStatus(String consentId,boolean expanded) {
+    public Mono<ConsentStatusResponseDTO> getConsentStatus(String consentId, boolean expanded) {
         if (accessToken == null) {
             return Mono.error(new SetuLoginException("Access token not available. Please login first."));
         }
@@ -161,7 +185,7 @@ public class SetuAuthServiceImpl implements SetuAuthService {
     }
 
     @Override
-    public Mono<    FinancialDataFetchResponseDTO> getFiData(String sessionId){
+    public Mono<FIPResponseDTO> getFiData(String sessionId){
 
         if (accessToken == null) {
             return Mono.error(new SetuLoginException("Access token not available. Please login first."));
@@ -184,11 +208,39 @@ public class SetuAuthServiceImpl implements SetuAuthService {
                                 return Mono.error(new RuntimeException("Error fetching consent status: " + errorBody));
                             });
                 })
-                .bodyToMono(FinancialDataFetchResponseDTO.class)
+                .bodyToMono(FIPResponseDTO.class)
+                .flatMap(response -> Mono.fromCallable(() -> {
+                    FiDataBundle fiDataBundle = fipResponseDtoToEntityMapper.mapToEntity(response); // Ensure this returns FiDataBundle
+                    fiDataRepository.save(fiDataBundle); // Save the correct type
+                    log.info("Data saved in DB with ID: {}", fiDataBundle.getId());
+                    return response; // Return the original FIPResponseDTO
+                }).subscribeOn(Schedulers.boundedElastic()))
                 .doOnNext(response -> log.info("Consent status fetched successfully: {}", response))
                 .doOnError(error -> log.error("Error occurred while fetching consent status", error));
 
     }
+
+    public Mono<RevokeConsentResponse> revokeConsent(String consentID){
+        WebClient webClient = webClientBuilder.build();
+        String url = STR."https://fiu-sandbox.setu.co/v2/consents/\{consentID}/revoke";
+        return webClient.post()
+                .uri(url)
+                .header(HttpHeaders.AUTHORIZATION, STR."Bearer \{accessToken}")
+                .header("x-product-instance-id", "681c4095-7cb7-402b-9f48-5c747c01cf95")
+                .retrieve()
+                .onStatus(status -> !status.is2xxSuccessful(), response -> {
+                    log.error("Failed to revoke consent. HTTP Status: {}", response.statusCode());
+                    return response.bodyToMono(String.class)
+                            .flatMap(errorBody -> {
+                                log.error("Error body: {}", errorBody);
+                                return Mono.error(new RuntimeException("Error fetching consent status: " + errorBody));
+                            });
+                })
+                .bodyToMono(RevokeConsentResponse.class)
+                .doOnNext(response -> log.info("Consent revoked successfully: {}", response))
+                .doOnError(error -> log.error("Error occurred while fetching consent status", error));
+    }
+
 
     private String sanitizeErrorMessage(String errorBody) {
         if (errorBody == null || errorBody.trim().isEmpty()) {
