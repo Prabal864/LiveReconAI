@@ -1,4 +1,4 @@
-package com.micronauticals.accountservice.Dto.response;
+package com.micronauticals.accountservice.Dto.response.consent;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

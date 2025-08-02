@@ -1,4 +1,4 @@
-package com.micronauticals.accountservice.entity;
+package com.micronauticals.accountservice.entity.consent;
 
 import jakarta.persistence.*;
 import lombok.*;
