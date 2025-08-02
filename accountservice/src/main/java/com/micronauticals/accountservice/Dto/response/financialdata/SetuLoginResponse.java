@@ -1,4 +1,4 @@
-package com.micronauticals.accountservice.Dto.response;
+package com.micronauticals.accountservice.Dto.response.financialdata;
 
 import lombok.Builder;
 import lombok.Data;

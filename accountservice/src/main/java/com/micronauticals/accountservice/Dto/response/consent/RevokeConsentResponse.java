@@ -1,6 +1,5 @@
-package com.micronauticals.accountservice.Dto.response;
+package com.micronauticals.accountservice.Dto.response.consent;
 
-import com.micronauticals.accountservice.enums.ConsentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
