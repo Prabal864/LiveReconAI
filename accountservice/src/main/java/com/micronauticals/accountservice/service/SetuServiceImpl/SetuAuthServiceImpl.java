@@ -5,6 +5,7 @@ import com.micronauticals.accountservice.Dto.response.consent.ConsentDataSession
 import com.micronauticals.accountservice.Dto.response.consent.ConsentResponse;
 import com.micronauticals.accountservice.Dto.response.consent.ConsentStatusResponseDTO;
 import com.micronauticals.accountservice.Dto.response.consent.RevokeConsentResponse;
+import com.micronauticals.accountservice.Dto.response.financialdata.DataRefreshPull;
 import com.micronauticals.accountservice.Dto.response.financialdata.FIPResponseDTO;
 import com.micronauticals.accountservice.Dto.response.financialdata.SetuLoginResponse;
 import com.micronauticals.accountservice.entity.consent.Consent;
@@ -239,6 +240,30 @@ public class SetuAuthServiceImpl implements SetuAuthService {
                 .bodyToMono(RevokeConsentResponse.class)
                 .doOnNext(response -> log.info("Consent revoked successfully: {}", response))
                 .doOnError(error -> log.error("Error occurred while fetching consent status", error));
+    }
+
+    @Override
+    public Mono<DataRefreshPull> refreshDataPull(String sessionID, boolean restart){
+        String url = restart
+                ? STR."https://fiu-sandbox.setu.co/v2/sessions/refresh/\{sessionID}?restart=true"
+                : STR."https://fiu-sandbox.setu.co/v2/sessions/refresh/\{sessionID}";
+
+        WebClient webClient = webClientBuilder.build();
+        return webClient.post()
+                .uri(url)
+                .header(HttpHeaders.AUTHORIZATION, STR."Bearer \{accessToken}")
+                .header("x-product-instance-id", "681c4095-7cb7-402b-9f48-5c747c01cf95")
+                .retrieve()
+                .onStatus(status -> !status.is2xxSuccessful(),response -> {
+                    log.error("Error occured while refreshing data. HTTP Status: {}",response.statusCode());
+                    return response.bodyToMono(String.class)
+                            .flatMap(errorBody ->{
+                                return Mono.error(new RuntimeException("Error refreshing data: " + errorBody));
+                            });
+                })
+                .bodyToMono(DataRefreshPull.class)
+                .doOnNext(response -> log.info("Data refreshed successfully: {}", response))
+                .doOnError(error -> log.error("Error occurred while refreshing data", error));
     }
 
 

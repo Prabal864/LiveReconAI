@@ -6,6 +6,7 @@ import com.micronauticals.accountservice.Dto.response.consent.ConsentDataSession
 import com.micronauticals.accountservice.Dto.response.consent.ConsentResponse;
 import com.micronauticals.accountservice.Dto.response.consent.ConsentStatusResponseDTO;
 import com.micronauticals.accountservice.Dto.response.consent.RevokeConsentResponse;
+import com.micronauticals.accountservice.Dto.response.financialdata.DataRefreshPull;
 import com.micronauticals.accountservice.Dto.response.financialdata.FIPResponseDTO;
 import com.micronauticals.accountservice.Dto.response.financialdata.SetuLoginResponse;
 import reactor.core.publisher.Mono;
@@ -17,4 +18,5 @@ public interface SetuAuthService {
     Mono<ConsentDataSessionResponseDTO> getDataSessionByConsentId(String consentId);
     Mono<FIPResponseDTO> getFiData(String sessionId);
     Mono<RevokeConsentResponse> revokeConsent(String consentID);
+    Mono<DataRefreshPull> refreshDataPull(String sessionID, boolean restart);
 }
