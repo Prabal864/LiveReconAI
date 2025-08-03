@@ -19,6 +19,7 @@ import com.micronauticals.accountservice.service.SetuServiceInterface.SetuAuthSe
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -36,6 +37,9 @@ public class SetuAuthServiceImpl implements SetuAuthService {
     private final ConsentDtoToEntity consentDtoToEntity;
     private final FIDataRepository fiDataRepository;
     private final FIPResponseDtoToEntityMapper fipResponseDtoToEntityMapper;
+
+    @Value("${setu.product.instance.id}")
+    private String productInstanceID;
 
     private static final String SETU_LOGIN_URL = "https://orgservice-prod.setu.co/v1/users/login";
     private static final String SETU_CONSENT_URL = "https://fiu-sandbox.setu.co/v2/consents";
@@ -103,7 +107,7 @@ public class SetuAuthServiceImpl implements SetuAuthService {
         return webClient.post()
                 .uri(SETU_CONSENT_URL)
                 .header(HttpHeaders.AUTHORIZATION, STR."Bearer \{accessToken}")
-                .header("x-product-instance-id", "681c4095-7cb7-402b-9f48-5c747c01cf95")
+                .header("x-product-instance-id", productInstanceID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestDTO)
                 .retrieve()
@@ -140,7 +144,7 @@ public class SetuAuthServiceImpl implements SetuAuthService {
         return webClient.get()
                 .uri(url)
                 .header(HttpHeaders.AUTHORIZATION, STR."Bearer \{accessToken}")
-                .header("x-product-instance-id", "681c4095-7cb7-402b-9f48-5c747c01cf95")
+                .header("x-product-instance-id", productInstanceID)
                 .retrieve()
                 .onStatus(status -> !status.is2xxSuccessful(), response -> {
                     log.error("Failed to fetch consent status. HTTP Status: {}", response.statusCode());
@@ -169,7 +173,7 @@ public class SetuAuthServiceImpl implements SetuAuthService {
         return webClient.get()
                 .uri(url)
                 .header(HttpHeaders.AUTHORIZATION, STR."Bearer \{accessToken}")
-                .header("x-product-instance-id", "681c4095-7cb7-402b-9f48-5c747c01cf95")
+                .header("x-product-instance-id", productInstanceID)
                 .retrieve()
                 .onStatus(status -> !status.is2xxSuccessful(), response -> {
                     log.error("Failed to fetch consent status. HTTP Status: {}", response.statusCode());
@@ -199,7 +203,7 @@ public class SetuAuthServiceImpl implements SetuAuthService {
         return webClient.get()
                 .uri(url)
                 .header(HttpHeaders.AUTHORIZATION, STR."Bearer \{accessToken}")
-                .header("x-product-instance-id", "681c4095-7cb7-402b-9f48-5c747c01cf95")
+                .header("x-product-instance-id", productInstanceID)
                 .retrieve()
                 .onStatus(status -> !status.is2xxSuccessful(), response -> {
                     log.error("Failed to fetch consent status. HTTP Status: {}", response.statusCode());
@@ -227,7 +231,7 @@ public class SetuAuthServiceImpl implements SetuAuthService {
         return webClient.post()
                 .uri(url)
                 .header(HttpHeaders.AUTHORIZATION, STR."Bearer \{accessToken}")
-                .header("x-product-instance-id", "681c4095-7cb7-402b-9f48-5c747c01cf95")
+                .header("x-product-instance-id", productInstanceID)
                 .retrieve()
                 .onStatus(status -> !status.is2xxSuccessful(), response -> {
                     log.error("Failed to revoke consent. HTTP Status: {}", response.statusCode());
@@ -252,7 +256,7 @@ public class SetuAuthServiceImpl implements SetuAuthService {
         return webClient.post()
                 .uri(url)
                 .header(HttpHeaders.AUTHORIZATION, STR."Bearer \{accessToken}")
-                .header("x-product-instance-id", "681c4095-7cb7-402b-9f48-5c747c01cf95")
+                .header("x-product-instance-id", productInstanceID)
                 .retrieve()
                 .onStatus(status -> !status.is2xxSuccessful(),response -> {
                     log.error("Error occured while refreshing data. HTTP Status: {}",response.statusCode());
