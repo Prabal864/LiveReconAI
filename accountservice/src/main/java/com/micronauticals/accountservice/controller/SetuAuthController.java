@@ -1,14 +1,24 @@
 package com.micronauticals.accountservice.controller;
 
 
-import com.micronauticals.accountservice.Dto.*;
+import com.micronauticals.accountservice.Dto.request.ConsentRequestDTO;
+import com.micronauticals.accountservice.Dto.request.SetuLoginRequest;
+import com.micronauticals.accountservice.Dto.response.consent.ConsentDataSessionResponseDTO;
+import com.micronauticals.accountservice.Dto.response.consent.ConsentResponse;
+import com.micronauticals.accountservice.Dto.response.consent.ConsentStatusResponseDTO;
+import com.micronauticals.accountservice.Dto.response.consent.RevokeConsentResponse;
+import com.micronauticals.accountservice.Dto.response.financialdata.DataRefreshPull;
+import com.micronauticals.accountservice.Dto.response.financialdata.FIPResponseDTO;
+import com.micronauticals.accountservice.Dto.response.financialdata.SetuLoginResponse;
 import com.micronauticals.accountservice.service.SetuServiceInterface.SetuAuthService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/setu/auth")
 @RequiredArgsConstructor
@@ -56,7 +66,7 @@ public class SetuAuthController {
 
 
     @GetMapping("/{sessionId}/getFiData")
-    public Mono<ResponseEntity<FinancialDataFetchResponseDTO>> getFiDataBySessionId(
+    public Mono<ResponseEntity<FIPResponseDTO>> getFiDataBySessionId(
             @PathVariable String sessionId) {
 
         return setuAuthService.getFiData(sessionId)
@@ -67,4 +77,18 @@ public class SetuAuthController {
                 });
     }
 
+    @PostMapping("/{consentID}/revokeConsent")
+    public Mono<ResponseEntity<RevokeConsentResponse>> revokeConsentByConsentID(
+            @PathVariable String consentID) {
+        return setuAuthService.revokeConsent(consentID)
+                .map(ResponseEntity::ok)
+                .onErrorResume(error -> Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null)));
+    }
+
+    @PostMapping("/{sessionID}/refreshDataPull")
+    public Mono<ResponseEntity<DataRefreshPull>> getRefreshDataBySessionID(@PathVariable String sessionID, @RequestParam(required = false,name = "restart",defaultValue = "false") boolean restart){
+        return setuAuthService.refreshDataPull(sessionID, restart)
+                .map(ResponseEntity::ok)
+                .onErrorResume(error -> Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null)));
+    }
 }
