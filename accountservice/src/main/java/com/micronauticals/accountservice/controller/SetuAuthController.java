@@ -85,7 +85,7 @@ public class SetuAuthController {
                 .onErrorResume(error -> Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null)));
     }
 
-    @PostMapping("{sessionID}/refreshDataPull")
+    @PostMapping("/{sessionID}/refreshDataPull")
     public Mono<ResponseEntity<DataRefreshPull>> getRefreshDataBySessionID(@PathVariable String sessionID, @RequestParam(required = false,name = "restart",defaultValue = "false") boolean restart){
         return setuAuthService.refreshDataPull(sessionID, restart)
                 .map(ResponseEntity::ok)
