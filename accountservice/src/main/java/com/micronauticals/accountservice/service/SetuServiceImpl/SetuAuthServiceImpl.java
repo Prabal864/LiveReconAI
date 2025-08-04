@@ -9,10 +9,13 @@ import com.micronauticals.accountservice.Dto.response.financialdata.DataRefreshP
 import com.micronauticals.accountservice.Dto.response.financialdata.FIPResponseDTO;
 import com.micronauticals.accountservice.Dto.response.financialdata.SetuLoginResponse;
 import com.micronauticals.accountservice.entity.consent.Consent;
+import com.micronauticals.accountservice.entity.consent.ConsentDataSession;
 import com.micronauticals.accountservice.entity.financialdata.FiDataBundle;
 import com.micronauticals.accountservice.exception.SetuLoginException;
+import com.micronauticals.accountservice.mapper.ConsentDataSessionToEntity;
 import com.micronauticals.accountservice.mapper.ConsentDtoToEntity;
 import com.micronauticals.accountservice.mapper.FIPResponseDtoToEntityMapper;
+import com.micronauticals.accountservice.repository.ConsentDataSessionRepository;
 import com.micronauticals.accountservice.repository.ConsentRepository;
 import com.micronauticals.accountservice.repository.FIDataRepository;
 import com.micronauticals.accountservice.service.SetuServiceInterface.SetuAuthService;
@@ -28,6 +31,8 @@ import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.util.Map;
+
+
 @Service
 @RequiredArgsConstructor
 public class SetuAuthServiceImpl implements SetuAuthService {
@@ -37,6 +42,8 @@ public class SetuAuthServiceImpl implements SetuAuthService {
     private final ConsentDtoToEntity consentDtoToEntity;
     private final FIDataRepository fiDataRepository;
     private final FIPResponseDtoToEntityMapper fipResponseDtoToEntityMapper;
+    private final ConsentDataSessionToEntity consentDataSessionToEntity ;
+    private final ConsentDataSessionRepository consentDataSessionRepository;
 
     @Value("${setu.product.instance.id}")
     private String productInstanceID;
@@ -184,6 +191,12 @@ public class SetuAuthServiceImpl implements SetuAuthService {
                             });
                 })
                 .bodyToMono(ConsentDataSessionResponseDTO.class)
+                .flatMap(response -> Mono.fromCallable(() -> {
+                    ConsentDataSession consentDataSession = consentDataSessionToEntity.mapToEntity(response);
+                    consentDataSessionRepository.save(consentDataSession);
+                    log.info("Data saved in DB with ID: {}", consentDataSession.getConsentId());
+                    return response;
+                }).subscribeOn(Schedulers.boundedElastic()))
                 .doOnNext(response -> log.info("Consent status fetched successfully: {}", response))
                 .doOnError(error -> log.error("Error occurred while fetching consent status", error));
 
