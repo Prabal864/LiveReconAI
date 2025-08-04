@@ -192,7 +192,6 @@ public class Consent {
         private String to;
     }
 
-    // FIX: Only have one no-args constructor, so add fields for future context
     @Embeddable
     @Data
     @Builder
@@ -224,7 +223,6 @@ public class Consent {
     @AllArgsConstructor
     @Data
     public static class AccountLinked {
-        // Example fields, update as needed
         @Column
         private String accountId;
         @Column
