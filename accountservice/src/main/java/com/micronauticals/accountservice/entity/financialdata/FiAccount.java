@@ -78,7 +78,7 @@ public class FiAccount {
                 @AttributeOverride(name = "type", column = @Column(name = "summary_type"))
         })
         private Summary summary;
-        // NO transactions here
+        
     }
 
     @Embeddable
