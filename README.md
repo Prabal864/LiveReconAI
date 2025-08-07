@@ -118,13 +118,7 @@ Submits FI data block to create a session
 ## 🔒 Security Notes
 
 - Secrets like `clientId`, `clientSecret`, `apiKey` are stored securely using `application.properties` or `.env`
-- Planning to integrate **OAuth2 login** for better access control and session tracking
-
----
-
-## 📷 Screenshots
-
-> (Add relevant screenshots or a Loom video link if available showing the flow)
+- Planning to integrate **OAuth2 login** for better access control and session trackin
 
 ---
 
@@ -148,6 +142,7 @@ Student | Backend Developer | DevOps Enthusiast
 ## 📌 Disclaimer
 
 This project is developed for educational/demo purposes using the Setu sandbox environment. No real user data is being used or stored.
+
 
 
 
