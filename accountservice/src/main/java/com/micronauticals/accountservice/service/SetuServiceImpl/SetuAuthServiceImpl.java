@@ -31,6 +31,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 
 @Service
@@ -113,7 +114,7 @@ public class SetuAuthServiceImpl implements SetuAuthService {
         WebClient webClient = webClientBuilder.build();
         return webClient.post()
                 .uri(SETU_CONSENT_URL)
-                .header(HttpHeaders.AUTHORIZATION, STR."Bearer \{accessToken}")
+                .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s",accessToken))
                 .header("x-product-instance-id", productInstanceID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestDTO)
@@ -146,11 +147,11 @@ public class SetuAuthServiceImpl implements SetuAuthService {
 
         WebClient webClient = webClientBuilder.build();
 
-        String url = STR."https://fiu-sandbox.setu.co/v2/consents/\{consentId}?expanded=\{expanded}";
+        String url = String.format("https://fiu-sandbox.setu.co/v2/consents/%s?expanded=%s", consentId, expanded);
 
         return webClient.get()
                 .uri(url)
-                .header(HttpHeaders.AUTHORIZATION, STR."Bearer \{accessToken}")
+                .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s",accessToken))
                 .header("x-product-instance-id", productInstanceID)
                 .retrieve()
                 .onStatus(status -> !status.is2xxSuccessful(), response -> {
@@ -175,11 +176,11 @@ public class SetuAuthServiceImpl implements SetuAuthService {
 
         WebClient webClient = webClientBuilder.build();
 
-        String url = STR."https://fiu-sandbox.setu.co/v2/consents/\{consentId}/data-sessions";
+        String url = String.format("https://fiu-sandbox.setu.co/v2/consents/%s/data-sessions",consentId);
 
         return webClient.get()
                 .uri(url)
-                .header(HttpHeaders.AUTHORIZATION, STR."Bearer \{accessToken}")
+                .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s",accessToken))
                 .header("x-product-instance-id", productInstanceID)
                 .retrieve()
                 .onStatus(status -> !status.is2xxSuccessful(), response -> {
@@ -211,11 +212,11 @@ public class SetuAuthServiceImpl implements SetuAuthService {
 
         WebClient webClient = webClientBuilder.build();
 
-        String url = STR."https://fiu-sandbox.setu.co/v2/sessions/\{sessionId}";
+        String url = String.format("https://fiu-sandbox.setu.co/v2/sessions/%s",sessionId);
 
         return webClient.get()
                 .uri(url)
-                .header(HttpHeaders.AUTHORIZATION, STR."Bearer \{accessToken}")
+                .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s",accessToken))
                 .header("x-product-instance-id", productInstanceID)
                 .retrieve()
                 .onStatus(status -> !status.is2xxSuccessful(), response -> {
@@ -227,23 +228,26 @@ public class SetuAuthServiceImpl implements SetuAuthService {
                             });
                 })
                 .bodyToMono(FIPResponseDTO.class)
-                .flatMap(response -> Mono.fromCallable(() -> {
-                    FiDataBundle fiDataBundle = fipResponseDtoToEntityMapper.mapToEntity(response); // Ensure this returns FiDataBundle
-                    fiDataRepository.save(fiDataBundle); // Save the correct type
-                    log.info("Data saved in DB with ID: {}", fiDataBundle.getId());
-                    return response; // Return the original FIPResponseDTO
-                }).subscribeOn(Schedulers.boundedElastic()))
-                .doOnNext(response -> log.info("Consent status fetched successfully: {}", response))
-                .doOnError(error -> log.error("Error occurred while fetching consent status", error));
-
+                .doOnNext(response -> {
+                    CompletableFuture.runAsync(() -> {
+                        try {
+                            FiDataBundle fiDataBundle = fipResponseDtoToEntityMapper.mapToEntity(response);
+                            fiDataRepository.save(fiDataBundle);
+                            log.info("Data saved in DB asynchronously: {}",response.getId());
+                        } catch (Exception e) {
+                            log.error("Error saving data asynchronously", e);
+                        }
+                    });
+                    log.info("Consent status fetched successfully");
+                });
     }
 
     public Mono<RevokeConsentResponse> revokeConsent(String consentID){
         WebClient webClient = webClientBuilder.build();
-        String url = STR."https://fiu-sandbox.setu.co/v2/consents/\{consentID}/revoke";
+        String url = String.format("https://fiu-sandbox.setu.co/v2/consents/%s/revoke",consentID);
         return webClient.post()
                 .uri(url)
-                .header(HttpHeaders.AUTHORIZATION, STR."Bearer \{accessToken}")
+                .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s",accessToken))
                 .header("x-product-instance-id", productInstanceID)
                 .retrieve()
                 .onStatus(status -> !status.is2xxSuccessful(), response -> {
@@ -262,13 +266,13 @@ public class SetuAuthServiceImpl implements SetuAuthService {
     @Override
     public Mono<DataRefreshPull> refreshDataPull(String sessionID, boolean restart){
         String url = restart
-                ? STR."https://fiu-sandbox.setu.co/v2/sessions/refresh/\{sessionID}?restart=true"
-                : STR."https://fiu-sandbox.setu.co/v2/sessions/refresh/\{sessionID}";
+                ? String.format("https://fiu-sandbox.setu.co/v2/sessions/refresh/%s?restart=true",sessionID)
+                : String.format("https://fiu-sandbox.setu.co/v2/sessions/refresh/%s",sessionID);
 
         WebClient webClient = webClientBuilder.build();
         return webClient.post()
                 .uri(url)
-                .header(HttpHeaders.AUTHORIZATION, STR."Bearer \{accessToken}")
+                .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s",accessToken))
                 .header("x-product-instance-id", productInstanceID)
                 .retrieve()
                 .onStatus(status -> !status.is2xxSuccessful(),response -> {
