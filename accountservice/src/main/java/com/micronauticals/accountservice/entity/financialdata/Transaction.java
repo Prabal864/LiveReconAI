@@ -43,7 +43,7 @@ public class Transaction {
 
     @DynamoDbSortKey
     public String getSk() {
-        return sk;
+        return "ACCOUNT#" + accountNumber + "#TXN#" + txnId;
     }
 
 
