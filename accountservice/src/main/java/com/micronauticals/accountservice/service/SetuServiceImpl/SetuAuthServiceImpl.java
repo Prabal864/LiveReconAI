@@ -11,6 +11,7 @@ import com.micronauticals.accountservice.Dto.response.financialdata.SetuLoginRes
 import com.micronauticals.accountservice.entity.consent.Consent;
 import com.micronauticals.accountservice.entity.consent.ConsentDataSession;
 import com.micronauticals.accountservice.entity.financialdata.FiDataBundle;
+import com.micronauticals.accountservice.entity.financialdata.Transaction;
 import com.micronauticals.accountservice.exception.SetuLoginException;
 import com.micronauticals.accountservice.mapper.ConsentDataSessionToEntity;
 import com.micronauticals.accountservice.mapper.ConsentDtoToEntity;
@@ -18,6 +19,7 @@ import com.micronauticals.accountservice.mapper.FIPResponseDtoToEntityMapper;
 import com.micronauticals.accountservice.repository.ConsentDataSessionRepository;
 import com.micronauticals.accountservice.repository.ConsentRepository;
 import com.micronauticals.accountservice.repository.FIDataRepository;
+import com.micronauticals.accountservice.repository.TransactionRepository;
 import com.micronauticals.accountservice.service.SetuServiceInterface.SetuAuthService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -30,6 +32,9 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -45,6 +50,7 @@ public class SetuAuthServiceImpl implements SetuAuthService {
     private final FIPResponseDtoToEntityMapper fipResponseDtoToEntityMapper;
     private final ConsentDataSessionToEntity consentDataSessionToEntity ;
     private final ConsentDataSessionRepository consentDataSessionRepository;
+    private final TransactionRepository transactionRepository;
 
     @Value("${setu.product.instance.id}")
     private String productInstanceID;
@@ -52,6 +58,7 @@ public class SetuAuthServiceImpl implements SetuAuthService {
     private static final String SETU_LOGIN_URL = "https://orgservice-prod.setu.co/v1/users/login";
     private static final String SETU_CONSENT_URL = "https://fiu-sandbox.setu.co/v2/consents";
     private static final Logger log = LoggerFactory.getLogger(SetuAuthServiceImpl.class);
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private String accessToken;
     private String refreshToken;
@@ -204,42 +211,68 @@ public class SetuAuthServiceImpl implements SetuAuthService {
     }
 
     @Override
-    public Mono<FIPResponseDTO> getFiData(String sessionId){
+    public Mono<FIPResponseDTO> getFiData(String sessionId) {
+        String timestamp = LocalDateTime.now().format(formatter);
+        log.info("Fetching financial data for session ID: {}, user: {}, timestamp: {}",
+                sessionId, timestamp);
 
         if (accessToken == null) {
             return Mono.error(new SetuLoginException("Access token not available. Please login first."));
         }
 
         WebClient webClient = webClientBuilder.build();
-
-        String url = String.format("https://fiu-sandbox.setu.co/v2/sessions/%s",sessionId);
+        String url = String.format("https://fiu-sandbox.setu.co/v2/sessions/%s", sessionId);
 
         return webClient.get()
                 .uri(url)
-                .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s",accessToken))
+                .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", accessToken))
                 .header("x-product-instance-id", productInstanceID)
                 .retrieve()
                 .onStatus(status -> !status.is2xxSuccessful(), response -> {
                     log.error("Failed to fetch consent status. HTTP Status: {}", response.statusCode());
                     return response.bodyToMono(String.class)
                             .flatMap(errorBody -> {
-                                log.error("Error body: {}", errorBody);
-                                return Mono.error(new RuntimeException("Error fetching consent status: " + errorBody));
+                                log.error("Error body: {}, user: {}", errorBody);
+                                return Mono.error(new RuntimeException("Error fetching financial data: " + errorBody));
                             });
                 })
                 .bodyToMono(FIPResponseDTO.class)
-                .doOnNext(response -> {
-                    CompletableFuture.runAsync(() -> {
-                        try {
-                            FiDataBundle fiDataBundle = fipResponseDtoToEntityMapper.mapToEntity(response);
-                            fiDataRepository.save(fiDataBundle);
-                            log.info("Data saved in DB asynchronously: {}",response.getId());
-                        } catch (Exception e) {
-                            log.error("Error saving data asynchronously", e);
+                .flatMap(response -> Mono.fromCallable(() -> {
+                    try {
+                        log.info("Processing financial data for consent ID: {}, user: {}",
+                                response.getConsentId());
+
+                        // Step 1: Map DTO to entity and save to PostgreSQL
+                        FiDataBundle fiDataBundle = fipResponseDtoToEntityMapper.mapToEntity(response);
+                        FiDataBundle savedBundle = fiDataRepository.save(fiDataBundle);
+                        log.info("Saved FiDataBundle with ID: {} to PostgreSQL, user: {}",
+                                savedBundle.getId());
+
+                        // Step 2: Extract transactions from the mapper
+                        List<Transaction> transactions = fipResponseDtoToEntityMapper.extractAllTransactions(response.getConsentId());
+                        log.info("Extracted {} transactions for DynamoDB storage, user: {}",
+                                transactions.size());
+
+                        // Step 3: Save all transactions to DynamoDB in batch
+                        if (!transactions.isEmpty()) {
+                            transactionRepository.saveAll(transactions);
+                            log.info("Successfully saved all {} transactions to DynamoDB, user: {}",
+                                    transactions.size());
+                        } else {
+                            log.info("No transactions to save to DynamoDB, user");
                         }
-                    });
-                    log.info("Consent status fetched successfully");
-                });
+
+                        return response;
+                    } catch (Exception e) {
+                        log.error("Error processing financial data, user: {}, error: {}",
+                                 e.getMessage(), e);
+                        throw e;
+                    }
+                }).subscribeOn(Schedulers.boundedElastic()))
+                .doOnNext(response -> log.info("Financial data processing completed successfully for consent ID: {}, user: {}",
+                        response.getConsentId()))
+                .doOnError(error -> log.error("Failed to process financial data, user: {}, error: {}"
+                        , error.getMessage(), error));
     }
 
     public Mono<RevokeConsentResponse> revokeConsent(String consentID){
