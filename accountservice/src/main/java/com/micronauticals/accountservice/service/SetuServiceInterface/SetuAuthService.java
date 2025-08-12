@@ -16,7 +16,7 @@ public interface SetuAuthService {
     Mono<ConsentResponse> createConsent(ConsentRequestDTO request);
     Mono<ConsentStatusResponseDTO> getConsentStatus(String consentId, boolean expanded);
     Mono<ConsentDataSessionResponseDTO> getDataSessionByConsentId(String consentId);
-    Mono<FIPResponseDTO> getFiData(String sessionId);
+    Mono<FIPResponseDTO> getFiData(String sessionId,String authorization);
     Mono<RevokeConsentResponse> revokeConsent(String consentID);
     Mono<DataRefreshPull> refreshDataPull(String sessionID, boolean restart);
 }
