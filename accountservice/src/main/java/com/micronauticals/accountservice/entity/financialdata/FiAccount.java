@@ -23,9 +23,6 @@ public class FiAccount {
 
     private String fistatus;
 
-    @OneToMany(mappedBy = "fiAccount", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Transaction> transactions;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fip_id")
     private Fip fip;
