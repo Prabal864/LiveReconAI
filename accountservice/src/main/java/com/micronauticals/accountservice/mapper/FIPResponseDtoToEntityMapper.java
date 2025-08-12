@@ -1,24 +1,55 @@
 package com.micronauticals.accountservice.mapper;
 
-
 import com.micronauticals.accountservice.Dto.response.financialdata.FIPResponseDTO;
 import com.micronauticals.accountservice.entity.financialdata.FiAccount;
 import com.micronauticals.accountservice.entity.financialdata.FiDataBundle;
 import com.micronauticals.accountservice.entity.financialdata.Fip;
 import com.micronauticals.accountservice.entity.financialdata.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Maps FIPResponseDTO to entities with transactions extracted separately
+ *
+ * Current Date and Time (UTC - YYYY-MM-DD HH:MM:SS formatted): 2025-08-12 12:44:23
+ * Current User's Login: Prabal864
+ */
 @Component
 public class FIPResponseDtoToEntityMapper {
 
+    private static final Logger log = LoggerFactory.getLogger(FIPResponseDtoToEntityMapper.class);
+    private final DateTimeFormatter timestampFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final TransactionMapper transactionMapper;
+
+    @Value("${app.user.id:Prabal864}")
+    private String defaultUserId;
+
+    // Store raw transaction data with account information for mapping
+    private final Map<String, TransactionDataEntry> transactionDataMap = new HashMap<>();
+
+    @Autowired
+    public FIPResponseDtoToEntityMapper(TransactionMapper transactionMapper) {
+        this.transactionMapper = transactionMapper;
+        log.info("Initialized FIPResponseDtoToEntityMapper at {}, user: {}",
+                LocalDateTime.now().format(timestampFormatter), defaultUserId);
+    }
+
     public FiDataBundle mapToEntity(FIPResponseDTO dto) {
-        return FiDataBundle.builder()
+        // Clear transaction map before mapping
+        transactionDataMap.clear();
+
+        log.info("Mapping FIPResponseDTO to entity for consent ID: {}, user: {}",
+                dto.getConsentId(), defaultUserId);
+
+        FiDataBundle bundle = FiDataBundle.builder()
                 .id(dto.getId())
                 .status(dto.getStatus())
                 .consentId(dto.getConsentId())
@@ -26,6 +57,35 @@ public class FIPResponseDtoToEntityMapper {
                 .dataRange(mapDataRange(dto.getDataRange()))
                 .fips(mapFipList(dto.getFips()))
                 .build();
+
+        return bundle;
+    }
+
+    /**
+     * Extract all transactions as DynamoDB entities
+     * This should be called after mapToEntity to get transactions for DynamoDB
+     */
+    public List<Transaction> extractAllTransactions(String consentId) {
+        log.info("Extracting all transactions for consent {}, user: {}",
+                consentId, defaultUserId);
+
+        List<Transaction> allTransactions = new ArrayList<>();
+
+        for (TransactionDataEntry entry : transactionDataMap.values()) {
+            // Use the dedicated transaction mapper
+            List<Transaction> transactions = transactionMapper.mapToDynamoDbTransactions(
+                    entry.transactions,
+                    entry.accountNumber,
+                    consentId,
+                    entry.fiAccountId
+            );
+
+            allTransactions.addAll(transactions);
+        }
+
+        log.info("Extracted {} transactions for DynamoDB, user: {}",
+                allTransactions.size(), defaultUserId);
+        return allTransactions;
     }
 
     private FiDataBundle.DataRange mapDataRange(FIPResponseDTO.DataRange dto) {
@@ -60,27 +120,50 @@ public class FIPResponseDtoToEntityMapper {
 
     private FiAccount mapAccount(FIPResponseDTO.Fip.Account dto) {
         FiAccount.AccountData data = mapAccountData(dto.getData());
-        List<Transaction> txns = Optional.ofNullable(dto.getData())
-                .map(FIPResponseDTO.Fip.Account.AccountData::getAccount)
-                .map(FIPResponseDTO.Fip.Account.AccountData.AccountDetail::getTransactions)
-                .map(FIPResponseDTO.Fip.Account.AccountData.AccountDetail.Transactions::getTransaction)
-                .map(this::mapTransactionList)
-                .orElse(null);
 
+        // Extract raw transaction data but don't map it yet
+        List<FIPResponseDTO.Fip.Account.AccountData.AccountDetail.Transactions.Transaction> txnData =
+                Optional.ofNullable(dto.getData())
+                        .map(FIPResponseDTO.Fip.Account.AccountData::getAccount)
+                        .map(FIPResponseDTO.Fip.Account.AccountData.AccountDetail::getTransactions)
+                        .map(FIPResponseDTO.Fip.Account.AccountData.AccountDetail.Transactions::getTransaction)
+                        .orElse(null);
+
+        // Build account WITHOUT transactions
         FiAccount entity = FiAccount.builder()
                 .maskedAccNumber(dto.getMaskedAccNumber())
                 .linkRefNumber(dto.getLinkRefNumber())
                 .fistatus(dto.getFIstatus())
                 .data(data)
-                .transactions(txns)
+                // No transactions here - they'll be handled separately
                 .build();
 
-        if (entity.getTransactions() != null) {
-            entity.getTransactions().forEach(t -> t.setFiAccount(entity));
+        // Store the entity ID after it's created
+        Long accountId = entity.getId();
+
+        // Store raw transaction data with account information for later processing
+        if (txnData != null && !txnData.isEmpty()) {
+            TransactionDataEntry entry = new TransactionDataEntry();
+            entry.transactions = txnData;
+            entry.accountNumber = dto.getLinkRefNumber();
+            entry.fiAccountId = accountId;
+
+            transactionDataMap.put(dto.getLinkRefNumber(), entry);
+            log.debug("Stored {} raw transactions for account {}, user: {}",
+                    txnData.size(), dto.getLinkRefNumber(), defaultUserId);
         }
+
         return entity;
     }
 
+    // Helper class to store transaction data with account information
+    private static class TransactionDataEntry {
+        List<FIPResponseDTO.Fip.Account.AccountData.AccountDetail.Transactions.Transaction> transactions;
+        String accountNumber;
+        Long fiAccountId;
+    }
+
+    // Remaining methods unchanged...
     private FiAccount.AccountData mapAccountData(FIPResponseDTO.Fip.Account.AccountData dto) {
         if (dto == null) return null;
         return new FiAccount.AccountData(mapAccountDetail(dto.getAccount()));
@@ -149,41 +232,5 @@ public class FIPResponseDtoToEntityMapper {
     private FiAccount.Pending mapPending(FIPResponseDTO.Fip.Account.AccountData.AccountDetail.Summary.Pending dto) {
         if (dto == null) return null;
         return new FiAccount.Pending(dto.getAmount(), dto.getTransactionType());
-    }
-
-    private List<Transaction> mapTransactionList(List<FIPResponseDTO.Fip.Account.AccountData.AccountDetail.Transactions.Transaction> dtos) {
-        if (dtos == null) return null;
-        return dtos.stream()
-                .map(this::mapTransaction)
-                .collect(Collectors.toList());
-    }
-
-    private Transaction mapTransaction(FIPResponseDTO.Fip.Account.AccountData.AccountDetail.Transactions.Transaction dto) {
-        if (dto == null) return null;
-        return Transaction.builder()
-                .txnId(dto.getTxnId())
-                .amount(parseDouble(dto.getAmount()))
-                .currentBalance(parseDouble(dto.getCurrentBalance()))
-                .mode(dto.getMode())
-                .narration(dto.getNarration())
-                .reference(dto.getReference())
-                .transactionTimestamp(parseLocalDateTime(dto.getTransactionTimestamp()))
-                .type(dto.getType())
-                .valueDate(parseLocalDateTime(dto.getValueDate()))
-                .build();
-    }
-
-    private Double parseDouble(String val) {
-        try { return val != null ? Double.valueOf(val) : null; }
-        catch (Exception e) { return null; }
-    }
-
-    private LocalDateTime parseLocalDateTime(String val) {
-        if (val == null) return null;
-        try {
-            return LocalDateTime.parse(val, DateTimeFormatter.ISO_DATE_TIME);
-        } catch (Exception ignored) { }
-        // Add additional parsing as needed
-        return null;
     }
 }
