@@ -1,45 +1,50 @@
 package com.micronauticals.accountservice.entity.financialdata;
 
 import lombok.*;
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
-@Entity
-@Table(name = "transactions")
+@DynamoDbBean
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Transaction {
 
-    @Id
+    private String pk;
+    private String sk;
     private String txnId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fi_account_id")
-    private FiAccount fiAccount; // Link to respective account
-
-    @Column(nullable = false)
+    private String accountNumber;
+    private String consentId;
     private Double amount;
-
-    @Column
     private Double currentBalance;
-
-    @Column
     private String mode;
-
-    @Column(length = 1024)
     private String narration;
-
-    @Column
     private String reference;
+    private String transactionTimestamp;
+    private String type;
+    private String valueDate;
+    private String userId;
 
-    @Column
-    private LocalDateTime transactionTimestamp;
+    private Long fiAccountId;
+    private String maskedAccNumber;
+    private String accountType;
+    private String accountStatus;
+    private String linkRefNumber;
 
-    @Column
-    private String type; // CREDIT or DEBIT
+    private String createdAt;
+    private String updatedAt;
 
-    @Column
-    private LocalDateTime valueDate;
+    @DynamoDbPartitionKey
+    public String getPk() {
+        return pk;
+    }
+
+    @DynamoDbSortKey
+    public String getSk() {
+        return sk;
+    }
+
+
 }
