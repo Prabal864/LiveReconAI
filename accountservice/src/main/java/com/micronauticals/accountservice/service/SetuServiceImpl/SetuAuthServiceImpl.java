@@ -211,12 +211,12 @@ public class SetuAuthServiceImpl implements SetuAuthService {
     }
 
     @Override
-    public Mono<FIPResponseDTO> getFiData(String sessionId) {
+    public Mono<FIPResponseDTO> getFiData(String sessionId, String authorization) {
         String timestamp = LocalDateTime.now().format(formatter);
         log.info("Fetching financial data for session ID: {}, user: {}, timestamp: {}",
                 sessionId, timestamp);
 
-        if (accessToken == null) {
+        if (authorization == null) {
             return Mono.error(new SetuLoginException("Access token not available. Please login first."));
         }
 
@@ -225,7 +225,7 @@ public class SetuAuthServiceImpl implements SetuAuthService {
 
         return webClient.get()
                 .uri(url)
-                .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", accessToken))
+                .header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", authorization))
                 .header("x-product-instance-id", productInstanceID)
                 .retrieve()
                 .onStatus(status -> !status.is2xxSuccessful(), response -> {
