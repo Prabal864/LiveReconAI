@@ -48,8 +48,8 @@ public class TransactionMapper {
         // Create DynamoDB transaction entity
         return Transaction.builder()
                 // Primary key components
-                .pk("ACCOUNT#" + accountNumber)
-                .sk("TXN#" + txnId)
+                .pk("CONSENTID#" + consentId)
+                .sk("ACCOUNT#"+ accountNumber + "TXN#" + txnId)
 
                 // Transaction details
                 .txnId(txnId)
