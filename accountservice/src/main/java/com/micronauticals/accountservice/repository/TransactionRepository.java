@@ -10,20 +10,25 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.enhanced.dynamodb.model.*;
+import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.Page;
+import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import software.amazon.awssdk.enhanced.dynamodb.model.WriteBatch;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Repository for Transaction entities in DynamoDB
- *
- * Current Date and Time (UTC - YYYY-MM-DD HH:MM:SS formatted): 2025-08-12 12:59:39
- * Current User's Login: Prabal864
- */
 @Repository
 public class TransactionRepository {
 
@@ -31,15 +36,21 @@ public class TransactionRepository {
     private final DynamoDbEnhancedClient dynamoDbEnhancedClient;
     private final DynamoDbTable<Transaction> transactionTable;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final String tableName;
 
     @Value("${app.user.id:Prabal864}")
     private String defaultUserId;
 
+    @Value("${aws.dynamodb.batch.concurrency:10}")
+    private int concurrencyLevel;
+
     @Autowired
-    public TransactionRepository(DynamoDbEnhancedClient dynamoDbEnhancedClient, DynamoDbEnhancedClient dynamoDbClient,
-                                 @Value("${aws.dynamodb.table.name:Transaction_Account_Service}") String tableName) {
+    public TransactionRepository(
+            DynamoDbEnhancedClient dynamoDbEnhancedClient,
+            @Value("${aws.dynamodb.table.name:Transaction_Account_Service}") String tableName) {
         this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
-        this.transactionTable = dynamoDbClient.table(tableName,
+        this.tableName = tableName;
+        this.transactionTable = dynamoDbEnhancedClient.table(tableName,
                 TableSchema.fromBean(Transaction.class));
         log.info("Initialized TransactionRepository with DynamoDB table '{}' at {}, user: {}",
                 tableName, LocalDateTime.now().format(formatter), defaultUserId);
@@ -56,7 +67,8 @@ public class TransactionRepository {
     }
 
     /**
-     * Save multiple transactions to DynamoDB
+     * Save multiple transactions to DynamoDB using parallel batch processing with controlled concurrency
+     * Uses a thread pool to process batches in parallel with configurable concurrency
      */
     public List<Transaction> saveAll(List<Transaction> transactions) {
         if (transactions == null || transactions.isEmpty()) {
@@ -64,54 +76,118 @@ public class TransactionRepository {
             return transactions;
         }
 
-        log.info("Batch saving {} transactions to DynamoDB, user: {}",
-                transactions.size(), defaultUserId);
+        final int batchSize = 25; // DynamoDB BatchWriteItem limit
+        final int totalTransactions = transactions.size();
+        final int totalBatches = (int) Math.ceil((double) totalTransactions / batchSize);
 
-        // DynamoDB BatchWriteItem has a limit of 25 items per request
-        int batchSize = 25;
-        int totalBatches = (int) Math.ceil((double) transactions.size() / batchSize);
+        log.info("Starting parallel batch save of {} transactions using {} threads, user: {}",
+                totalTransactions, concurrencyLevel, defaultUserId);
 
-        for (int batchNum = 0; batchNum < totalBatches; batchNum++) {
-            int fromIndex = batchNum * batchSize;
-            int toIndex = Math.min(fromIndex + batchSize, transactions.size());
-            List<Transaction> batch = transactions.subList(fromIndex, toIndex);
+        // Use a custom thread factory for better naming and tracking
+        ThreadFactory threadFactory = new ThreadFactory() {
+            private final AtomicInteger threadNumber = new AtomicInteger(1);
 
-            try {
-                // Create a write batch for this chunk
-                WriteBatch.Builder<Transaction> writeBuilder = WriteBatch.builder(Transaction.class)
-                        .mappedTableResource(transactionTable);
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread thread = new Thread(r, "DynamoDbBatchWriter-" + threadNumber.getAndIncrement());
+                thread.setDaemon(true); // Don't prevent app shutdown
+                return thread;
+            }
+        };
 
-                // Add each transaction to the batch
-                for (Transaction txn : batch) {
-                    writeBuilder.addPutItem(txn);
+        // Create a fixed thread pool with the configured concurrency level
+        ExecutorService executor = Executors.newFixedThreadPool(concurrencyLevel, threadFactory);
+
+        // Split transactions into batches of 25 (DynamoDB limit)
+        List<List<Transaction>> batches = new ArrayList<>();
+        for (int i = 0; i < transactions.size(); i += batchSize) {
+            int endIndex = Math.min(i + batchSize, transactions.size());
+            batches.add(new ArrayList<>(transactions.subList(i, endIndex)));
+        }
+
+        // Track batch completion
+        final AtomicInteger successfulBatches = new AtomicInteger(0);
+        final AtomicInteger failedBatches = new AtomicInteger(0);
+        final CountDownLatch latch = new CountDownLatch(batches.size());
+
+        // Submit each batch as a separate task
+        List<Future<?>> futures = new ArrayList<>();
+        for (int batchNum = 0; batchNum < batches.size(); batchNum++) {
+            final int currentBatchNum = batchNum;
+            final List<Transaction> currentBatch = batches.get(batchNum);
+
+            futures.add(executor.submit(() -> {
+                try {
+                    processBatch(currentBatch, currentBatchNum + 1, totalBatches);
+                    successfulBatches.incrementAndGet();
+                } catch (Exception e) {
+                    failedBatches.incrementAndGet();
+                    log.error("Error processing batch {}/{}, user: {}, error: {}",
+                            currentBatchNum + 1, totalBatches, defaultUserId, e.getMessage(), e);
+                } finally {
+                    latch.countDown();
                 }
+            }));
+        }
 
-                // Execute the batch write
-                BatchWriteItemEnhancedRequest batchWriteItemEnhancedRequest = BatchWriteItemEnhancedRequest.builder()
-                        .writeBatches(writeBuilder.build())
-                        .build();
-
-                log.info("Executing batch write for batch {}/{} ({} items), user: {}",
-                        batchNum + 1, totalBatches, batch.size(), defaultUserId);
-
-                dynamoDbEnhancedClient.batchWriteItem(batchWriteItemEnhancedRequest);
-
-                log.info("Successfully wrote batch {}/{}, user: {}",
-                        batchNum + 1, totalBatches, defaultUserId);
-
-            } catch (Exception e) {
-                log.error("Error writing batch {}/{}, user: {}, error: {}",
-                        batchNum + 1, totalBatches, defaultUserId, e.getMessage(), e);
-
-                // Continue with other batches even if one fails
-                continue;
+        try {
+            // Wait for all batches to complete with a timeout
+            boolean completed = latch.await(5, TimeUnit.MINUTES);
+            if (!completed) {
+                log.warn("Timeout waiting for batch operations to complete after 5 minutes, user: {}",
+                        defaultUserId);
+            }
+        } catch (InterruptedException e) {
+            log.error("Thread interrupted while waiting for batch operations, user: {}",
+                    defaultUserId, e);
+            Thread.currentThread().interrupt();
+        } finally {
+            // Initiate graceful shutdown
+            executor.shutdown();
+            try {
+                // Wait a bit for tasks to complete
+                if (!executor.awaitTermination(30, TimeUnit.SECONDS)) {
+                    // Force shutdown if still running
+                    executor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executor.shutdownNow();
+                Thread.currentThread().interrupt();
             }
         }
 
-        log.info("Completed batch saving of {} transactions, user: {}",
-                transactions.size(), defaultUserId);
+        log.info("Completed parallel batch processing: {}/{} batches successful, {}/{} batches failed, user: {}",
+                successfulBatches.get(), totalBatches, failedBatches.get(), totalBatches, defaultUserId);
 
         return transactions;
+    }
+
+    /**
+     * Process a single batch of transactions
+     */
+    private void processBatch(List<Transaction> batch, int batchNum, int totalBatches) {
+        String timestamp = LocalDateTime.now().format(formatter);
+        log.info("Processing batch {}/{} with {} items at {}, user: {}",
+                batchNum, totalBatches, batch.size(), timestamp, defaultUserId);
+
+        // Create a write batch for this chunk
+        WriteBatch.Builder<Transaction> writeBuilder = WriteBatch.builder(Transaction.class)
+                .mappedTableResource(transactionTable);
+
+        // Add each transaction to the batch
+        for (Transaction txn : batch) {
+            writeBuilder.addPutItem(txn);
+        }
+
+        // Execute the batch write
+        BatchWriteItemEnhancedRequest batchWriteItemEnhancedRequest = BatchWriteItemEnhancedRequest.builder()
+                .writeBatches(writeBuilder.build())
+                .build();
+
+        dynamoDbEnhancedClient.batchWriteItem(batchWriteItemEnhancedRequest);
+
+        log.info("Successfully completed batch {}/{} with {} items, user: {}",
+                batchNum, totalBatches, batch.size(), defaultUserId);
     }
 
     /**
