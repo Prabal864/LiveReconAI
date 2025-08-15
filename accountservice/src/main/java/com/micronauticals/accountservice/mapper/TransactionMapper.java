@@ -49,7 +49,9 @@ public class TransactionMapper {
         return Transaction.builder()
                 // Primary key components
                 .pk("CONSENTID#" + consentId)
-                .sk("ACCOUNT#"+ accountNumber + "TXN#" + txnId)
+                .sk("ACCOUNT#"+ accountNumber + "TIMESTAMP#" + timestamp)
+                .pk_GSI_1("MODE#"+ dto.getMode())
+                .sk_GSI_1("AMT#" + dto.getAmount())
 
                 // Transaction details
                 .txnId(txnId)
