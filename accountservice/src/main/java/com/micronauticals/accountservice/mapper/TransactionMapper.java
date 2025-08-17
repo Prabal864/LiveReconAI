@@ -42,6 +42,9 @@ public class TransactionMapper {
         String date = LocalDateTime.now().format(dateFormatter);
         String txnId = dto.getTxnId() != null ? dto.getTxnId() :
                 "txn-" + System.currentTimeMillis();
+        String amount = dto.getAmount();
+        String mode = dto.getMode();
+        String narration = dto.getNarration();
 
         log.debug("Mapping transaction {} to DynamoDB format, user: {}", txnId, defaultUserId);
 
@@ -50,8 +53,18 @@ public class TransactionMapper {
                 // Primary key components
                 .pk("CONSENTID#" + consentId)
                 .sk("ACCOUNT#"+ accountNumber + "TIMESTAMP#" + timestamp)
-                .pk_GSI_1("MODE#"+ dto.getMode())
-                .sk_GSI_1("AMT#" + dto.getAmount())
+
+                .pk_GSI_1("MODE#"+ mode)
+                .sk_GSI_1("AMT#" + amount)
+
+                .pk_GSI_2("DATE#" + date)
+                .sk_GSI_2("MODE#"+ mode +"#AMOUNT#" + amount)
+
+                .pk_GSI_3("ACCOUNT#" + accountNumber)
+                .sk_GSI_3("NARRATION#" + narration + "#AMOUNT#" + amount)
+
+                .pk_GSI_4("NARRATION#" + narration)
+                .sk_GSI_4("AMOUNT#" + amount + "#Mode#" + mode)
 
                 // Transaction details
                 .txnId(txnId)

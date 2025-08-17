@@ -11,10 +11,21 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
 @AllArgsConstructor
 public class Transaction {
 
-    private String pk;
-    private String sk;
-    private String pk_GSI_1;
-    private String sk_GSI_1;
+    private String pk; // consentID
+    private String sk; // Account Number + Txn TimeStamp
+
+    private String pk_GSI_1; // Type
+    private String sk_GSI_1; // Amount
+
+    private String pk_GSI_2; // Date
+    private String sk_GSI_2; // Mode + Amount
+
+    private String pk_GSI_3; // Account Number
+    private String sk_GSI_3; // Narration + Amount
+
+    private String pk_GSI_4; // Narration
+    private String sk_GSI_4; // Amount + Mode
+
     private String txnId;
     private String accountNumber;
     private String consentId;
