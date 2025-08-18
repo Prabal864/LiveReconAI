@@ -6,9 +6,9 @@ spring:
     name: account
 
   datasource:
-    url: {cipher}0c5600cac07159a6bc42adc38f3123e41d00d6df5f38429a4dbc7b6b2685c42cc9a106432e03a5e9f7eb08965741eca5562bd87918906e13a2195ada7ae696e53a6437b2f1335bdedcfe39287fac24aa15db82572b89dc01ba49a6770293e93178b74e850f26f07be06c135a17f1d1d8f854eea92aeb767b43925c69e4802666
-    username: {cipher}caf5d343b542e1f65a1c4543d34767d938e5d590436ee4facf7ea804a98e21e4
-    password: {cipher}245c41aafd6b2adf2bd5a3a32ba37ec22dabf541a81862a2be1ddf083d9846b82a508570545c615a66aaf5bfa8774012
+    url: "{cipher}0c5600cac07159a6bc42adc38f3123e41d00d6df5f38429a4dbc7b6b2685c42cc9a106432e03a5e9f7eb08965741eca5562bd87918906e13a2195ada7ae696e53a6437b2f1335bdedcfe39287fac24aa15db82572b89dc01ba49a6770293e93178b74e850f26f07be06c135a17f1d1d8f854eea92aeb767b43925c69e4802666"
+    username: "{cipher}caf5d343b542e1f65a1c4543d34767d938e5d590436ee4facf7ea804a98e21e4"
+    password: "{cipher}245c41aafd6b2adf2bd5a3a32ba37ec22dabf541a81862a2be1ddf083d9846b82a508570545c615a66aaf5bfa8774012"
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -20,8 +20,8 @@ spring:
   rabbitmq:
     host: localhost
     port: 5672
-    username: {cipher}52619d1c8db763a9812cc69001290f6bcfedc3972ae6942bab262bb13305c0f4
-    password: {cipher}52619d1c8db763a9812cc69001290f6bcfedc3972ae6942bab262bb13305c0f4
+    username: "{cipher}52619d1c8db763a9812cc69001290f6bcfedc3972ae6942bab262bb13305c0f4"
+    password: "{cipher}52619d1c8db763a9812cc69001290f6bcfedc3972ae6942bab262bb13305c0f4"
 
   jpa:
     hibernate:
@@ -35,8 +35,8 @@ aws:
     region: ap-south-1
     table:
       name: Transactions_AMS
-    accessKey: {cipher}4f5aabd6f02d395b1ac0f29d7353e7fcd3ef4015300efa28c9d1197467b6cb8d004d98fa376b12b8480ba753c64f11a7
-    secretKey: {cipher}e9ccaf0431ee7936abca93bbaf97cf7e7b3bf87542a75361fe63abdf1738aef93beff636cc5a0951cdf5bc92dae7286ad2bae70426244ebe1e3ff4b74fd05385
+    accessKey: "{cipher}4f5aabd6f02d395b1ac0f29d7353e7fcd3ef4015300efa28c9d1197467b6cb8d004d98fa376b12b8480ba753c64f11a7"
+    secretKey: "{cipher}e9ccaf0431ee7936abca93bbaf97cf7e7b3bf87542a75361fe63abdf1738aef93beff636cc5a0951cdf5bc92dae7286ad2bae70426244ebe1e3ff4b74fd05385"
 
 logging:
   level:
@@ -48,4 +48,4 @@ logging:
 setu:
   product:
     instance:
-      id: {cipher}fe9bafd028a16c3f20e806ad0ebab733b39af6eda5704d5506f27455f56325d2d3a5402cd1a24a38591b8b4dbf3f72e8c31d6bea63ff3deeba2eec637bdfc34f
+      id: "{cipher}fe9bafd028a16c3f20e806ad0ebab733b39af6eda5704d5506f27455f56325d2d3a5402cd1a24a38591b8b4dbf3f72e8c31d6bea63ff3deeba2eec637bdfc34f"
