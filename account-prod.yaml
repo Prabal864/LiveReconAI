@@ -8,7 +8,7 @@ spring:
   datasource:
     url: "{cipher}0c5600cac07159a6bc42adc38f3123e41d00d6df5f38429a4dbc7b6b2685c42cc9a106432e03a5e9f7eb08965741eca5562bd87918906e13a2195ada7ae696e53a6437b2f1335bdedcfe39287fac24aa15db82572b89dc01ba49a6770293e93178b74e850f26f07be06c135a17f1d1d8f854eea92aeb767b43925c69e4802666"
     username: "{cipher}caf5d343b542e1f65a1c4543d34767d938e5d590436ee4facf7ea804a98e21e4"
-    password: "{cipher}245c41aafd6b2adf2bd5a3a32ba37ec22dabf541a81862a2be1ddf083d9846b82a508570545c615a66aaf5bfa8774012"
+    password: "{cipher}a2ffe88774267793e211cc1d128bbae3e5f437254673600bece12727aae6b911a6f5b9e13557efdd542705dea1f8a222"
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
