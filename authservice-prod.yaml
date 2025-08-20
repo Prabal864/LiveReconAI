@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: authservice
+  profiles:
+    active: prod
   config:
     import: "optional:configserver:http://localhost:8071/"
   datasource:
