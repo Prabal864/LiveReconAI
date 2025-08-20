@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: authservice
+    name: auth
   profiles:
     active: prod
   config:
