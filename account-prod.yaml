@@ -38,13 +38,6 @@ aws:
     accessKey: "{cipher}4f5aabd6f02d395b1ac0f29d7353e7fcd3ef4015300efa28c9d1197467b6cb8d004d98fa376b12b8480ba753c64f11a7"
     secretKey: "{cipher}e9ccaf0431ee7936abca93bbaf97cf7e7b3bf87542a75361fe63abdf1738aef93beff636cc5a0951cdf5bc92dae7286ad2bae70426244ebe1e3ff4b74fd05385"
 
-logging:
-  level:
-    com:
-      livereconai: INFO
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-
 setu:
   product:
     instance:
