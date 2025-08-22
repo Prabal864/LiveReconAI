@@ -23,9 +23,6 @@ public class FiAccount {
 
     private String fistatus;
 
-    @OneToMany(mappedBy = "fiAccount", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Transaction> transactions;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fip_id")
     private Fip fip;
@@ -78,7 +75,7 @@ public class FiAccount {
                 @AttributeOverride(name = "type", column = @Column(name = "summary_type"))
         })
         private Summary summary;
-        // NO transactions here
+        
     }
 
     @Embeddable

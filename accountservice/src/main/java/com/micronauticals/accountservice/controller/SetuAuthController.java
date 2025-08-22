@@ -67,9 +67,9 @@ public class SetuAuthController {
 
     @GetMapping("/{sessionId}/getFiData")
     public Mono<ResponseEntity<FIPResponseDTO>> getFiDataBySessionId(
-            @PathVariable String sessionId) {
+            @PathVariable String sessionId, @RequestHeader("Authorization") String authorization ) {
 
-        return setuAuthService.getFiData(sessionId)
+        return setuAuthService.getFiData(sessionId, authorization.substring(7))
                 .map(ResponseEntity::ok)
                 .onErrorResume(error -> {
                     // Optionally log the error here

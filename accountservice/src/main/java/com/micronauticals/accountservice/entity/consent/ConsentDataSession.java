@@ -1,28 +1,44 @@
 package com.micronauticals.accountservice.entity.consent;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
-@Table(name = "consent_data_sessions")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "consent_data_session")
 public class ConsentDataSession {
-    @Id
-    private String sessionId;
 
-    @Column(nullable = false)
+    @Id
     private String consentId;
 
-    @Column(nullable = false)
-    private String status;
+    @Column(nullable = true)
+    private String traceId;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
+    @OneToMany(mappedBy = "consentDataSession", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DataSession> dataSessions;
+
+    @Entity
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Table(name = "data_session")
+    public static class DataSession {
+
+        @Id
+        private String sessionId;
+
+        private String status;
+
+        private LocalDateTime created_at;
+
+        @ManyToOne
+        @JoinColumn(name = "consent_id")
+        private ConsentDataSession consentDataSession;
+    }
 }
