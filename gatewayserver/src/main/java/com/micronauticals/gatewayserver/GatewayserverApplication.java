@@ -18,16 +18,16 @@ public class GatewayserverApplication {
     @Bean
     public RouteLocator liveReconAIConfig(RouteLocatorBuilder routeLocatorBuilder){
         return routeLocatorBuilder.routes()
-                .route(p -> p.path("/prod/v1/account/**")
+                .route(p -> p.path("/livereconai/prod/v1/account/**")
                         .filters(f->f.rewritePath(
-                                "livereconai/prod/v1/account/(?<segment>.*)",
+                                "/livereconai/prod/v1/account/(?<segment>.*)",
                                 "/${segment}"
                         ).addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
                         ).uri("lb://ACCOUNT")
                 )
-                .route(p -> p.path("livereconai/prod/v1/auth/**")
+                .route(p -> p.path("/livereconai/prod/v1/auth/**")
                         .filters(f->f.rewritePath(
-                                "prod/v1/auth/(?<segment>.*)",
+                                "/livereconai/prod/v1/auth/(?<segment>.*)",
                                 "/${segment}"
                         ).addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
                         ).uri("lb://AUTH")
