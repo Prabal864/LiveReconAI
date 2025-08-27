@@ -59,7 +59,7 @@ public class GatewayserverApplication {
 
     @Bean
     KeyResolver keyResolver(){
-        return exchange -> Mono.justOrEmpty(exchange.getRequest().getHeaders().getFirst("user"))
+        return exchange -> Mono.justOrEmpty(exchange.getRequest().getHeaders().getFirst("user"));
     }
 
 }
