@@ -21,16 +21,18 @@ public class GatewayserverApplication {
                 .route(p -> p.path("/livereconai/prod/v1/account/**")
                         .filters(f->f.rewritePath(
                                 "/livereconai/prod/v1/account/(?<segment>.*)",
-                                "/${segment}"
-                        ).addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
-                        ).uri("lb://ACCOUNT")
+                                "/${segment}")
+                        .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                        .circuitBreaker(config -> config.setName("AccountCircuitBreaker")))
+                        .uri("lb://ACCOUNT")
                 )
                 .route(p -> p.path("/livereconai/prod/v1/auth/**")
                         .filters(f->f.rewritePath(
                                 "/livereconai/prod/v1/auth/(?<segment>.*)",
-                                "/${segment}"
-                        ).addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
-                        ).uri("lb://AUTH")
+                                "/${segment}")
+                        .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                        .circuitBreaker(config -> config.setName("AuthCircuitBreaker")))
+                        .uri("lb://AUTH")
                 )
                 .build();
     }
