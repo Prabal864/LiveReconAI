@@ -287,7 +287,7 @@ services:
     image: prabal864/livereconai:gateway-v1
     container_name: Gateway_MS
     ports:
-      - "8072:8072"
+      - 8073:8073
     depends_on:
       eurekaserver:
         condition: service_healthy
