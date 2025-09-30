@@ -3,11 +3,11 @@ services:
     image: grafana/loki:latest
     command: "-config.file=/etc/loki/config.yaml -target=read"
     ports:
-      - 3101:3100
-      - 7946
-      - 9095
+      - "3101:3100"
+      - "7946"
+      - "9095"
     volumes:
-      - ./loki-config.yaml:/etc/loki/config.yaml
+      - ../observability/loki/loki-config.yaml:/etc/loki/config.yaml
     depends_on:
       - minio
     healthcheck:
@@ -16,7 +16,7 @@ services:
       timeout: 5s
       retries: 5
     networks: &loki-dns
-      loki:
+      FinancePilot:
         aliases:
           - loki
     deploy:
@@ -29,11 +29,11 @@ services:
     image: grafana/loki:latest
     command: "-config.file=/etc/loki/config.yaml -target=write"
     ports:
-      - 3102:3100
-      - 7946
-      - 9095
+      - "3102:3100"
+      - "7946"
+      - "9095"
     volumes:
-      - ./loki-config.yaml:/etc/loki/config.yaml
+      - ../observability/loki/loki-config.yaml:/etc/loki/config.yaml
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1" ]
       interval: 10s
@@ -52,11 +52,11 @@ services:
   alloy:
     image: grafana/alloy:latest
     volumes:
-      - ./alloy-local-config.yaml:/etc/alloy/config.alloy:ro
+      - ../observability/alloy/alloy-local-config.yaml:/etc/alloy/config.alloy:ro
       - /var/run/docker.sock:/var/run/docker.sock
     command:  run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
     ports:
-      - 12345:12345
+      - "12345:12345"
     depends_on:
       - gateway
     networks:
@@ -287,7 +287,7 @@ services:
     image: prabal864/livereconai:gateway-v1
     container_name: Gateway_MS
     ports:
-      - 8073:8073
+      - "8073:8073"
     depends_on:
       eurekaserver:
         condition: service_healthy
@@ -310,10 +310,10 @@ services:
       SPRING_DATA_REDIS_HOST: "redis"
 
   eurekaserver:
-    image: prabal864/livereconai:eurekaserver-v1
+    image: prabal864/livereconai:eureka-v1
     container_name: eurekaserver
     ports:
-      - 8761:8761
+      - "8761:8761"
     deploy:
       resources:
         limits:
@@ -329,7 +329,7 @@ services:
       configserver:
         condition: service_healthy
     networks:
-      - bank_network
+      - FinancePilot
     environment:
       SPRING_APPLICATION_NAME: "eurekaserver"
       SPRING_CONFIG_IMPORT: "configserver:http://configserver:8084/"
@@ -354,7 +354,7 @@ services:
       rabbit:
         condition: service_healthy
     networks:
-      - bank_network
+      - FinancePilot
     environment:
       SPRING_RABBITMQ_HOST: "rabbit"
 
