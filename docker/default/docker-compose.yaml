@@ -252,6 +252,22 @@ services:
       retries: 15
       start_period: 5s
 
+  rabbit:
+    image: rabbitmq:latest
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks:
+      - FinancePilot
+
 
   account:
     image:  prabal864/livereconai:account-v1
