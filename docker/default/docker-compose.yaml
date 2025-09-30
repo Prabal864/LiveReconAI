@@ -284,7 +284,7 @@ services:
           memory: 516M
 
   gatewayserver:
-    image: "prabal864/java-spring:Gateway-Server-S12"
+    image: prabal864/livereconai:gateway-v1
     container_name: Gateway_MS
     ports:
       - "8072:8072"
