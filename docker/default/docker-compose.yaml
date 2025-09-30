@@ -143,7 +143,7 @@ services:
   backend:
     image: grafana/loki:latest
     volumes:
-      - ./loki-config.yaml:/etc/loki/config.yaml
+      - ../observability/loki/loki-config.yaml:/etc/loki/config.yaml
     ports:
       - "3100"
       - "7946"
@@ -274,14 +274,16 @@ services:
     container_name: accountservice
     ports:
         - "8082:8082"
-    environment:
-      SPRING_PROFILES_ACTIVE: "prod"
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eurekaserver:8761/eureka/"
     deploy:
       resources:
         limits:
           cpus: 1.25
           memory: 516M
+    depends_on:
+      configserver:
+          condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
 
   gatewayserver:
     image: prabal864/livereconai:gateway-v1
