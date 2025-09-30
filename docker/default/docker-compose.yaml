@@ -334,8 +334,29 @@ services:
       SPRING_APPLICATION_NAME: "eurekaserver"
       SPRING_CONFIG_IMPORT: "configserver:http://configserver:8084/"
 
+  configserver:
+    image: prabal864/livereconai:config-v1
+    container_name: configserver-ms
+    ports:
+      - "8084:8084"
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 700M
 
-
+    healthcheck:
+      test: curl --fail --silent http://configserver:8084/actuator/health/readiness | grep UP || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 20
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    networks:
+      - bank_network
+    environment:
+      SPRING_RABBITMQ_HOST: "rabbit"
 
 networks:
   FinancePilot:
