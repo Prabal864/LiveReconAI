@@ -267,6 +267,27 @@ services:
           cpus: 1.25
           memory: 516M
 
+  gatewayserver:
+    image: "prabal864/java-spring:Gateway-Server-S12"
+    container_name: Gateway_MS
+    ports:
+      - "8072:8072"
+    depends_on:
+      eurekaserver:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 700M
+    networks:
+      - FinancePilot
+
 
 networks:
   FinancePilot:
