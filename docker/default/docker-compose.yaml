@@ -281,9 +281,11 @@ services:
           memory: 516M
     depends_on:
       configserver:
-          condition: service_healthy
+          condition: service_started
       eurekaserver:
         condition: service_healthy
+    networks:
+      - FinancePilot
 
   gatewayserver:
     image: prabal864/livereconai:gateway-v1
@@ -329,7 +331,7 @@ services:
       retries: 20
     depends_on:
       configserver:
-        condition: service_healthy
+        condition: service_started
     networks:
       - FinancePilot
     environment:
@@ -348,10 +350,11 @@ services:
           memory: 700M
 
     healthcheck:
-      test: curl --fail --silent http://configserver:8084/actuator/health/readiness | grep UP || exit 1
+      test: "curl --fail --silent http://configserver:8084/actuator/health | grep UP || exit 1"
       interval: 30s
       timeout: 5s
       retries: 20
+      start_period: 35s
     depends_on:
       rabbit:
         condition: service_healthy
