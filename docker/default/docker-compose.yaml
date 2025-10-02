@@ -302,6 +302,10 @@ services:
         condition: service_healthy
       eurekaserver:
         condition: service_healthy
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8084/"
+      SPRING_RABBITMQ_HOST: "rabbit"
+      SPRING_DATA_REDIS_HOST: "redis"
     networks:
       - FinancePilot
 
