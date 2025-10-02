@@ -287,6 +287,24 @@ services:
     networks:
       - FinancePilot
 
+  auth:
+    image: prabal864/livereconai:auth-v1
+    container_name: authservice
+    ports:
+      - "8081:8081"
+    deploy:
+      resources:
+        limits:
+          cpus: 1
+          memory: 516M
+    depends_on:
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    networks:
+      - FinancePilot
+
   gatewayserver:
     image: prabal864/livereconai:gateway-v1
     container_name: Gateway_MS
