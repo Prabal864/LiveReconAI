@@ -25,6 +25,21 @@ services:
           cpus: 1
           memory: 512M
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - FinancePilot
+    deploy:
+      resources:
+        limits:
+          cpus: 1
+          memory: 256M
+
   write:
     image: grafana/loki:latest
     command: "-config.file=/etc/loki/config.yaml -target=write"
