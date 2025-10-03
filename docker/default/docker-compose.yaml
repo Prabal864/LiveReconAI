@@ -31,7 +31,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ../observability/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - ../observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - FinancePilot
     deploy:
