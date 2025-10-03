@@ -31,7 +31,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ../observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ../observability/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
     networks:
       - FinancePilot
     deploy:
@@ -126,19 +126,6 @@ services:
       - sh
       - -euc
       - |
-        mkdir -p /etc/grafana/provisioning/datasources
-        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
-        apiVersion: 1
-        datasources:
-          - name: Loki
-            type: loki
-            access: proxy
-            url: http://gateway:3100
-            jsonData:
-              httpHeaderName1: "X-Scope-OrgID"
-            secureJsonData:
-              httpHeaderValue1: "tenant1"
-        EOF
         /run.sh
     ports:
       - "3000:3000"
@@ -147,6 +134,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    volumes:
+      - ../observability/grafana/datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yaml
     deploy:
       resources:
         limits:
