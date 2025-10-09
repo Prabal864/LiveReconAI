@@ -21,9 +21,9 @@ spring:
         format_sql: true
 
 logging:
-  level:
-    org.springframework.security: INFO
-    com.livereconai: DEBUG
+    pattern:
+      level: "%5p[${spring.application.name},%X{trace_id,%{span_id}]"
+
 
 management:
   endpoints:
