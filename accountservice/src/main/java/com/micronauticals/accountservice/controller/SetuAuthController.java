@@ -11,6 +11,7 @@ import com.micronauticals.accountservice.Dto.response.financialdata.DataRefreshP
 import com.micronauticals.accountservice.Dto.response.financialdata.FIPResponseDTO;
 import com.micronauticals.accountservice.Dto.response.financialdata.SetuLoginResponse;
 import com.micronauticals.accountservice.service.SetuServiceInterface.SetuAuthService;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,10 +27,15 @@ public class SetuAuthController {
 
     private final SetuAuthService setuAuthService;
 
+    @RateLimiter(name = "postLogin", fallbackMethod = "loginFallback")
     @PostMapping("/login")
     public ResponseEntity<SetuLoginResponse> login(@RequestBody SetuLoginRequest request) {
         SetuLoginResponse response = setuAuthService.login(request);
         return ResponseEntity.ok(response);
+    }
+
+    public ResponseEntity<String> loginFallback(@RequestBody SetuLoginRequest request,Throwable throwable) {
+        return ResponseEntity.ok("Too much traffic wait for sometime");
     }
 
     @PostMapping("/consent")
