@@ -274,7 +274,7 @@ services:
 
 
   account:
-    image:  prabal864/livereconai:account-v2
+    image:  prabal864/livereconai:account-v1
     container_name: accountservice
     ports:
         - "8082:8082"
@@ -340,7 +340,7 @@ services:
       SPRING_DATA_REDIS_HOST: "redis"
 
   eurekaserver:
-    image: prabal864/livereconai:eureka-v2
+    image: prabal864/livereconai:eureka-v1
     container_name: eurekaserver
     ports:
       - "8761:8761"
@@ -365,7 +365,7 @@ services:
       SPRING_CONFIG_IMPORT: "configserver:http://configserver:8084/"
 
   configserver:
-    image: prabal864/livereconai:config-v2
+    image: prabal864/livereconai:config-v1
     container_name: configserver-ms
     ports:
       - "8084:8084"
