@@ -18,7 +18,7 @@ public class SecurityConfig {
         serverHttpSecurity.authorizeExchange(authorizeExchangeSpec ->
             authorizeExchangeSpec
             .pathMatchers(HttpMethod.GET).permitAll()
-            .pathMatchers("api/setu/auth/**").authenticated()
+            .pathMatchers("api/setu/auth/**").hasRole("User")
         ).oauth2ResourceServer(oAuth2ResourceServerSpec -> oAuth2ResourceServerSpec.jwt(Customizer.withDefaults()));
     return serverHttpSecurity.build();
     }
