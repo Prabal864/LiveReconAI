@@ -1,10 +1,14 @@
 services:
 
   keycloak:
-    image: quay.io/keycloak/keycloak:latest
-    command: start-dev
+    image: "quay.io/keycloak/keycloak:26.2.0"
+    container_name: keycloak
     ports:
-      - "8080:8080"
+      - "8070:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    command: "start-dev"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/realms/master"]
       interval: 30s
@@ -411,3 +415,7 @@ services:
 networks:
   FinancePilot:
     driver: bridge
+
+volumes:
+  keycloak_data:
+    driver: local
