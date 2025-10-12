@@ -19,7 +19,8 @@ public class SecurityConfig {
         serverHttpSecurity.authorizeExchange(authorizeExchangeSpec ->
             authorizeExchangeSpec
             .pathMatchers(HttpMethod.GET).permitAll()
-            .pathMatchers("/livereconai/prod/v1/account/**").hasRole("USER")
+            .pathMatchers("/livereconai/prod/v1/account/api/setu/auth/login").hasRole("USER")
+            .pathMatchers("/livereconai/prod/v1/account/api/setu/auth/**").permitAll()
         ).oauth2ResourceServer(oAuth2ResourceServerSpec -> oAuth2ResourceServerSpec
                 .jwt(jwtSpec -> jwtSpec.jwtAuthenticationConverter(grantedAuthoritiesExtractor())));
     return serverHttpSecurity.build();
