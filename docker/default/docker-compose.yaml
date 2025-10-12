@@ -337,7 +337,7 @@ services:
       - FinancePilot
 
   gatewayserver:
-    image: prabal864/livereconai:gateway-v2
+    image: prabal864/livereconai:gateway-v3
     container_name: Gateway_MS
     ports:
       - "8073:8073"
@@ -361,6 +361,7 @@ services:
       SPRING_CONFIG_IMPORT: "configserver:http://configserver:8084/"
       SPRING_RABBITMQ_HOST: "rabbit"
       SPRING_DATA_REDIS_HOST: "redis"
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI: "http://keycloak:8080/realms/master/protocol/openid-connect/certs"
 
   eurekaserver:
     image: prabal864/livereconai:eureka-v1
