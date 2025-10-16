@@ -28,7 +28,7 @@ services:
       - KEYCLOAK_ADMIN_PASSWORD=admin
     command: "start-dev"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8070/realms/master"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/realms/master"]
       interval: 30s
       timeout: 10s
       retries: 10
