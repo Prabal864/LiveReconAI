@@ -285,7 +285,7 @@ const LandingPage = () => {
               { step: '04', title: 'Get Insights', desc: 'View dashboards and ask questions about your finances' },
             ].map((item, index) => (
               <div key={index} className="text-center group">
-                <div className="w-18 h-18 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-purple-600/20 via-violet-600/15 to-cyan-600/10 border border-purple-500/30 flex items-center justify-center group-hover:border-purple-500/50 group-hover:from-purple-600/30 transition-all">
+                <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-purple-600/20 via-violet-600/15 to-cyan-600/10 border border-purple-500/30 flex items-center justify-center group-hover:border-purple-500/50 group-hover:from-purple-600/30 transition-all">
                   <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">
                     {item.step}
                   </span>
