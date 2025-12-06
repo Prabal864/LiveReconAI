@@ -349,6 +349,11 @@ document.addEventListener('DOMContentLoaded', () => {
         autoPlayInterval = setInterval(nextSlide, 5000);
     });
     
+    // Clean up on page unload
+    window.addEventListener('beforeunload', () => {
+        clearInterval(autoPlayInterval);
+    });
+    
     // Handle resize
     window.addEventListener('resize', () => {
         updateSlidesPerView();
@@ -361,8 +366,18 @@ document.addEventListener('DOMContentLoaded', () => {
     createIndicators();
     updateCarousel();
     
-    // Keyboard navigation
+    // Keyboard navigation (only when carousel is in view)
+    let isCarouselInView = false;
+    const carouselObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            isCarouselInView = entry.isIntersecting;
+        });
+    }, { threshold: 0.3 });
+    
+    carouselObserver.observe(track);
+    
     document.addEventListener('keydown', (e) => {
+        if (!isCarouselInView) return;
         if (e.key === 'ArrowLeft') prevSlide();
         if (e.key === 'ArrowRight') nextSlide();
     });
