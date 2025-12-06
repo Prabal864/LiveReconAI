@@ -43,7 +43,7 @@ let lastScroll = 0;
 const navbar = document.querySelector('nav');
 
 window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset;
+    const currentScroll = window.scrollY;
     
     if (currentScroll <= 0) {
         navbar.style.boxShadow = 'none';
@@ -83,17 +83,42 @@ if (contactForm) {
         // Simple validation
         if (name && email && message) {
             // Show success message (in a real app, this would send to a server)
-            alert('Thank you for your message! I will get back to you soon.');
+            showNotification('Thank you for your message! I will get back to you soon.', 'success');
             contactForm.reset();
         } else {
-            alert('Please fill in all fields.');
+            showNotification('Please fill in all fields.', 'error');
         }
     });
 }
 
+// Simple notification system
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        background: ${type === 'success' ? 'linear-gradient(135deg, #8b5cf6, #3b82f6)' : 'linear-gradient(135deg, #ef4444, #dc2626)'};
+        color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        animation: slideIn 0.3s ease-out;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
 // Parallax effect for blob animations
 window.addEventListener('scroll', () => {
-    const scrolled = window.pageYOffset;
+    const scrolled = window.scrollY;
     const blobs = document.querySelectorAll('.animated-blob');
     
     blobs.forEach((blob, index) => {
@@ -112,7 +137,7 @@ window.addEventListener('scroll', () => {
     sections.forEach(section => {
         const sectionTop = section.offsetTop;
         const sectionHeight = section.clientHeight;
-        if (pageYOffset >= (sectionTop - 200)) {
+        if (scrollY >= (sectionTop - 200)) {
             current = section.getAttribute('id');
         }
     });
@@ -159,8 +184,15 @@ projectCards.forEach(card => {
     });
 });
 
-// Add cursor effect (optional)
+// Add cursor effect (throttled for performance)
+let lastCursorTime = 0;
+const cursorThrottle = 50; // ms
+
 document.addEventListener('mousemove', (e) => {
+    const now = Date.now();
+    if (now - lastCursorTime < cursorThrottle) return;
+    lastCursorTime = now;
+    
     const cursor = document.createElement('div');
     cursor.style.cssText = `
         position: fixed;
@@ -197,7 +229,34 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Console message for visitors
+/* Console message for visitors */
 console.log('%c👋 Hello, Developer!', 'color: #8b5cf6; font-size: 24px; font-weight: bold;');
 console.log('%cInterested in my work? Let\'s connect!', 'color: #3b82f6; font-size: 16px;');
 console.log('%c📧 940pps@gmail.com', 'color: #94a3b8; font-size: 14px;');
+
+// Add notification animation styles
+const notificationStyles = document.createElement('style');
+notificationStyles.textContent = `
+    @keyframes slideIn {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(notificationStyles);
