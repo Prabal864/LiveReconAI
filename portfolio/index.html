@@ -7,16 +7,13 @@
     <link rel="stylesheet" href="tailwind-base.css">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="gradient-bg text-white font-sans antialiased">
+<body class="wave-bg text-white font-sans antialiased">
     
-    <!-- Animated Vertical Beams -->
-    <div class="beam-container">
-        <div class="beam"></div>
-        <div class="beam"></div>
-        <div class="beam"></div>
-        <div class="beam"></div>
-        <div class="beam"></div>
-        <div class="beam"></div>
+    <!-- Animated Wave Background -->
+    <div class="wave-background">
+        <div class="wave wave1"></div>
+        <div class="wave wave2"></div>
+        <div class="wave wave3"></div>
     </div>
     
     <!-- Navigation -->
@@ -125,144 +122,177 @@
     <section id="work" class="py-20 px-6 bg-gradient-to-b from-transparent to-dark-card/30">
         <div class="max-w-7xl mx-auto">
             <h2 class="section-title fade-in">Featured Work</h2>
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Project 1 -->
-                <div class="project-card fade-in">
-                    <div class="project-image-placeholder">
-                        <div class="flex items-center justify-center h-full">
-                            <svg class="w-20 h-20 text-accent-purple/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
+            
+            <!-- Carousel Container -->
+            <div class="carousel-container relative">
+                <div class="carousel-wrapper overflow-hidden">
+                    <div class="carousel-track" id="carouselTrack">
+                        <!-- Project 1 -->
+                        <div class="carousel-slide">
+                            <div class="project-card interactive-card">
+                                <div class="project-image-placeholder">
+                                    <div class="flex items-center justify-center h-full">
+                                        <svg class="w-20 h-20 text-accent-purple/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="text-xl font-bold mb-2">Financial Data Insights Platform</h3>
+                                    <p class="text-accent-silver mb-4">
+                                        Secure financial data aggregation using Setu Account Aggregator Framework with AI-powered insights.
+                                    </p>
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="tech-tag">Java Spring Boot</span>
+                                        <span class="tech-tag">OpenAI</span>
+                                        <span class="tech-tag">AWS</span>
+                                    </div>
+                                    <a href="#" class="text-accent-blue hover:text-accent-purple transition-colors">View Project →</a>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">Financial Data Insights Platform</h3>
-                        <p class="text-accent-silver mb-4">
-                            Secure financial data aggregation using Setu Account Aggregator Framework with AI-powered insights.
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="tech-tag">Java Spring Boot</span>
-                            <span class="tech-tag">OpenAI</span>
-                            <span class="tech-tag">AWS</span>
-                        </div>
-                        <a href="#" class="text-accent-blue hover:text-accent-purple transition-colors">View Project →</a>
-                    </div>
-                </div>
 
-                <!-- Project 2 -->
-                <div class="project-card fade-in">
-                    <div class="project-image-placeholder">
-                        <div class="flex items-center justify-center h-full">
-                            <svg class="w-20 h-20 text-accent-blue/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
-                            </svg>
+                        <!-- Project 2 -->
+                        <div class="carousel-slide">
+                            <div class="project-card interactive-card">
+                                <div class="project-image-placeholder">
+                                    <div class="flex items-center justify-center h-full">
+                                        <svg class="w-20 h-20 text-accent-blue/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="text-xl font-bold mb-2">Microservices Architecture</h3>
+                                    <p class="text-accent-silver mb-4">
+                                        Scalable microservices with API Gateway, Config Server, and Authentication services.
+                                    </p>
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="tech-tag">Spring Cloud</span>
+                                        <span class="tech-tag">JWT</span>
+                                        <span class="tech-tag">Docker</span>
+                                    </div>
+                                    <a href="#" class="text-accent-blue hover:text-accent-purple transition-colors">View Project →</a>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">Microservices Architecture</h3>
-                        <p class="text-accent-silver mb-4">
-                            Scalable microservices with API Gateway, Config Server, and Authentication services.
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="tech-tag">Spring Cloud</span>
-                            <span class="tech-tag">JWT</span>
-                            <span class="tech-tag">Docker</span>
-                        </div>
-                        <a href="#" class="text-accent-blue hover:text-accent-purple transition-colors">View Project →</a>
-                    </div>
-                </div>
 
-                <!-- Project 3 -->
-                <div class="project-card fade-in">
-                    <div class="project-image-placeholder">
-                        <div class="flex items-center justify-center h-full">
-                            <svg class="w-20 h-20 text-accent-silver/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                            </svg>
+                        <!-- Project 3 -->
+                        <div class="carousel-slide">
+                            <div class="project-card interactive-card">
+                                <div class="project-image-placeholder">
+                                    <div class="flex items-center justify-center h-full">
+                                        <svg class="w-20 h-20 text-accent-silver/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="text-xl font-bold mb-2">Transaction Analytics Engine</h3>
+                                    <p class="text-accent-silver mb-4">
+                                        Real-time transaction categorization and spend analysis with AI-powered insights.
+                                    </p>
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="tech-tag">React</span>
+                                        <span class="tech-tag">DynamoDB</span>
+                                        <span class="tech-tag">AI/ML</span>
+                                    </div>
+                                    <a href="#" class="text-accent-blue hover:text-accent-purple transition-colors">View Project →</a>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">Transaction Analytics Engine</h3>
-                        <p class="text-accent-silver mb-4">
-                            Real-time transaction categorization and spend analysis with AI-powered insights.
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="tech-tag">React</span>
-                            <span class="tech-tag">DynamoDB</span>
-                            <span class="tech-tag">AI/ML</span>
-                        </div>
-                        <a href="#" class="text-accent-blue hover:text-accent-purple transition-colors">View Project →</a>
-                    </div>
-                </div>
 
-                <!-- Project 4 -->
-                <div class="project-card fade-in">
-                    <div class="project-image-placeholder">
-                        <div class="flex items-center justify-center h-full">
-                            <svg class="w-20 h-20 text-accent-purple/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                            </svg>
+                        <!-- Project 4 -->
+                        <div class="carousel-slide">
+                            <div class="project-card interactive-card">
+                                <div class="project-image-placeholder">
+                                    <div class="flex items-center justify-center h-full">
+                                        <svg class="w-20 h-20 text-accent-purple/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="text-xl font-bold mb-2">Secure API Gateway</h3>
+                                    <p class="text-accent-silver mb-4">
+                                        High-performance API Gateway with rate limiting, authentication, and service routing.
+                                    </p>
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="tech-tag">Spring Gateway</span>
+                                        <span class="tech-tag">Security</span>
+                                        <span class="tech-tag">Redis</span>
+                                    </div>
+                                    <a href="#" class="text-accent-blue hover:text-accent-purple transition-colors">View Project →</a>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">Secure API Gateway</h3>
-                        <p class="text-accent-silver mb-4">
-                            High-performance API Gateway with rate limiting, authentication, and service routing.
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="tech-tag">Spring Gateway</span>
-                            <span class="tech-tag">Security</span>
-                            <span class="tech-tag">Redis</span>
-                        </div>
-                        <a href="#" class="text-accent-blue hover:text-accent-purple transition-colors">View Project →</a>
-                    </div>
-                </div>
 
-                <!-- Project 5 -->
-                <div class="project-card fade-in">
-                    <div class="project-image-placeholder">
-                        <div class="flex items-center justify-center h-full">
-                            <svg class="w-20 h-20 text-accent-blue/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
-                            </svg>
+                        <!-- Project 5 -->
+                        <div class="carousel-slide">
+                            <div class="project-card interactive-card">
+                                <div class="project-image-placeholder">
+                                    <div class="flex items-center justify-center h-full">
+                                        <svg class="w-20 h-20 text-accent-blue/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="text-xl font-bold mb-2">Cloud Infrastructure</h3>
+                                    <p class="text-accent-silver mb-4">
+                                        Scalable cloud deployment with AWS EC2, S3, and automated CI/CD pipelines.
+                                    </p>
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="tech-tag">AWS</span>
+                                        <span class="tech-tag">DevOps</span>
+                                        <span class="tech-tag">CI/CD</span>
+                                    </div>
+                                    <a href="#" class="text-accent-blue hover:text-accent-purple transition-colors">View Project →</a>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">Cloud Infrastructure</h3>
-                        <p class="text-accent-silver mb-4">
-                            Scalable cloud deployment with AWS EC2, S3, and automated CI/CD pipelines.
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="tech-tag">AWS</span>
-                            <span class="tech-tag">DevOps</span>
-                            <span class="tech-tag">CI/CD</span>
-                        </div>
-                        <a href="#" class="text-accent-blue hover:text-accent-purple transition-colors">View Project →</a>
-                    </div>
-                </div>
 
-                <!-- Project 6 -->
-                <div class="project-card fade-in">
-                    <div class="project-image-placeholder">
-                        <div class="flex items-center justify-center h-full">
-                            <svg class="w-20 h-20 text-accent-silver/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
+                        <!-- Project 6 -->
+                        <div class="carousel-slide">
+                            <div class="project-card interactive-card">
+                                <div class="project-image-placeholder">
+                                    <div class="flex items-center justify-center h-full">
+                                        <svg class="w-20 h-20 text-accent-silver/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="text-xl font-bold mb-2">Real-time Data Processing</h3>
+                                    <p class="text-accent-silver mb-4">
+                                        Event-driven architecture for processing financial transactions in real-time.
+                                    </p>
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="tech-tag">Webhooks</span>
+                                        <span class="tech-tag">Kafka</span>
+                                        <span class="tech-tag">Streaming</span>
+                                    </div>
+                                    <a href="#" class="text-accent-blue hover:text-accent-purple transition-colors">View Project →</a>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">Real-time Data Processing</h3>
-                        <p class="text-accent-silver mb-4">
-                            Event-driven architecture for processing financial transactions in real-time.
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="tech-tag">Webhooks</span>
-                            <span class="tech-tag">Kafka</span>
-                            <span class="tech-tag">Streaming</span>
-                        </div>
-                        <a href="#" class="text-accent-blue hover:text-accent-purple transition-colors">View Project →</a>
                     </div>
                 </div>
+                
+                <!-- Carousel Controls -->
+                <button class="carousel-btn carousel-btn-prev" id="prevBtn">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                <button class="carousel-btn carousel-btn-next" id="nextBtn">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+                
+                <!-- Carousel Indicators -->
+                <div class="carousel-indicators" id="carouselIndicators"></div>
             </div>
         </div>
     </section>
@@ -270,22 +300,74 @@
     <!-- Resume Section -->
     <section id="resume" class="py-20 px-6">
         <div class="max-w-5xl mx-auto">
-            <h2 class="section-title fade-in">Experience & Skills</h2>
+            <h2 class="section-title fade-in">Resume & Experience</h2>
+            
+            <!-- Download Resume Button -->
+            <div class="text-center mb-12 fade-in">
+                <a href="#" class="cta-button inline-flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Download Resume
+                </a>
+            </div>
             
             <!-- Timeline -->
             <div class="space-y-8">
-                <!-- Experience Item -->
-                <div class="timeline-item fade-in">
+                <!-- Education -->
+                <div class="timeline-item fade-in interactive-card">
+                    <div class="glass-card p-6 hover-lift">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                            <h3 class="text-2xl font-bold">Bachelor of Technology</h3>
+                            <span class="text-accent-silver">2021 - 2025</span>
+                        </div>
+                        <p class="text-accent-blue mb-2">Computer Science & Engineering</p>
+                        <p class="text-accent-silver leading-relaxed">
+                            Specialized in Software Development, Cloud Computing, and Financial Technology.
+                            Focus on building secure, scalable enterprise applications.
+                        </p>
+                    </div>
+                </div>
+            
+                <!-- Experience Item 1 -->
+                <div class="timeline-item fade-in interactive-card">
                     <div class="glass-card p-6 hover-lift">
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                             <h3 class="text-2xl font-bold">Backend Developer</h3>
                             <span class="text-accent-silver">2023 - Present</span>
                         </div>
                         <p class="text-accent-blue mb-2">Financial Tech Projects</p>
-                        <p class="text-accent-silver leading-relaxed">
+                        <p class="text-accent-silver leading-relaxed mb-4">
                             Developing secure financial data aggregation platforms using Setu Account Aggregator Framework, 
                             implementing microservices architecture, and integrating AI-powered insights for transaction analysis.
                         </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="tech-tag">Java Spring Boot</span>
+                            <span class="tech-tag">Microservices</span>
+                            <span class="tech-tag">AWS</span>
+                            <span class="tech-tag">OpenAI</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Experience Item 2 -->
+                <div class="timeline-item fade-in interactive-card">
+                    <div class="glass-card p-6 hover-lift">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                            <h3 class="text-2xl font-bold">DevOps Engineer</h3>
+                            <span class="text-accent-silver">2022 - 2023</span>
+                        </div>
+                        <p class="text-accent-blue mb-2">Cloud Infrastructure & Automation</p>
+                        <p class="text-accent-silver leading-relaxed mb-4">
+                            Designed and implemented CI/CD pipelines, automated deployment processes, 
+                            and managed cloud infrastructure on AWS. Reduced deployment time by 60%.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="tech-tag">Docker</span>
+                            <span class="tech-tag">Kubernetes</span>
+                            <span class="tech-tag">Jenkins</span>
+                            <span class="tech-tag">Terraform</span>
+                        </div>
                     </div>
                 </div>
 
@@ -293,7 +375,7 @@
                 <div class="fade-in">
                     <h3 class="text-2xl font-bold mb-6">Technical Skills</h3>
                     <div class="grid md:grid-cols-3 gap-6">
-                        <div class="glass-card p-6">
+                        <div class="glass-card p-6 interactive-card">
                             <h4 class="font-bold text-lg mb-4 text-accent-purple">Backend</h4>
                             <ul class="space-y-2 text-accent-silver">
                                 <li>• Java Spring Boot</li>
@@ -303,7 +385,7 @@
                                 <li>• JWT Authentication</li>
                             </ul>
                         </div>
-                        <div class="glass-card p-6">
+                        <div class="glass-card p-6 interactive-card">
                             <h4 class="font-bold text-lg mb-4 text-accent-blue">Cloud & DevOps</h4>
                             <ul class="space-y-2 text-accent-silver">
                                 <li>• AWS (EC2, S3)</li>
@@ -313,7 +395,7 @@
                                 <li>• Git</li>
                             </ul>
                         </div>
-                        <div class="glass-card p-6">
+                        <div class="glass-card p-6 interactive-card">
                             <h4 class="font-bold text-lg mb-4 text-accent-silver">Database & AI</h4>
                             <ul class="space-y-2 text-accent-silver">
                                 <li>• DynamoDB</li>

@@ -260,3 +260,125 @@ notificationStyles.textContent = `
     }
 `;
 document.head.appendChild(notificationStyles);
+
+// Carousel Functionality
+document.addEventListener('DOMContentLoaded', () => {
+    const track = document.getElementById('carouselTrack');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const indicatorsContainer = document.getElementById('carouselIndicators');
+    
+    if (!track || !prevBtn || !nextBtn) return;
+    
+    const slides = track.querySelectorAll('.carousel-slide');
+    const totalSlides = slides.length;
+    let currentIndex = 0;
+    let slidesPerView = 1;
+    
+    // Calculate slides per view based on screen size
+    function updateSlidesPerView() {
+        if (window.innerWidth >= 1024) {
+            slidesPerView = 3;
+        } else if (window.innerWidth >= 768) {
+            slidesPerView = 2;
+        } else {
+            slidesPerView = 1;
+        }
+    }
+    
+    // Create indicators
+    function createIndicators() {
+        indicatorsContainer.innerHTML = '';
+        const maxIndex = Math.ceil(totalSlides / slidesPerView);
+        for (let i = 0; i < maxIndex; i++) {
+            const indicator = document.createElement('div');
+            indicator.classList.add('carousel-indicator');
+            if (i === 0) indicator.classList.add('active');
+            indicator.addEventListener('click', () => goToSlide(i));
+            indicatorsContainer.appendChild(indicator);
+        }
+    }
+    
+    // Update carousel position
+    function updateCarousel() {
+        const slideWidth = 100 / slidesPerView;
+        const offset = -(currentIndex * slideWidth);
+        track.style.transform = `translateX(${offset}%)`;
+        
+        // Update indicators
+        const indicators = indicatorsContainer.querySelectorAll('.carousel-indicator');
+        indicators.forEach((indicator, index) => {
+            indicator.classList.toggle('active', index === currentIndex);
+        });
+    }
+    
+    // Go to specific slide
+    function goToSlide(index) {
+        const maxIndex = Math.ceil(totalSlides / slidesPerView) - 1;
+        currentIndex = Math.max(0, Math.min(index, maxIndex));
+        updateCarousel();
+    }
+    
+    // Next slide
+    function nextSlide() {
+        const maxIndex = Math.ceil(totalSlides / slidesPerView) - 1;
+        currentIndex = currentIndex >= maxIndex ? 0 : currentIndex + 1;
+        updateCarousel();
+    }
+    
+    // Previous slide
+    function prevSlide() {
+        const maxIndex = Math.ceil(totalSlides / slidesPerView) - 1;
+        currentIndex = currentIndex <= 0 ? maxIndex : currentIndex - 1;
+        updateCarousel();
+    }
+    
+    // Event listeners
+    prevBtn.addEventListener('click', prevSlide);
+    nextBtn.addEventListener('click', nextSlide);
+    
+    // Auto-play
+    let autoPlayInterval = setInterval(nextSlide, 5000);
+    
+    // Pause auto-play on hover
+    track.addEventListener('mouseenter', () => {
+        clearInterval(autoPlayInterval);
+    });
+    
+    track.addEventListener('mouseleave', () => {
+        autoPlayInterval = setInterval(nextSlide, 5000);
+    });
+    
+    // Handle resize
+    window.addEventListener('resize', () => {
+        updateSlidesPerView();
+        createIndicators();
+        goToSlide(0);
+    });
+    
+    // Initialize
+    updateSlidesPerView();
+    createIndicators();
+    updateCarousel();
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') prevSlide();
+        if (e.key === 'ArrowRight') nextSlide();
+    });
+});
+
+// Add interactive hover effects to all cards
+document.addEventListener('DOMContentLoaded', () => {
+    const cards = document.querySelectorAll('.glass-card, .project-card');
+    
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+});
