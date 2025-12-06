@@ -117,12 +117,12 @@
     width: 100%;
 }
 
-/* Animated Blobs */
+/* Animated Blobs with Maroon/Purple Gradients */
 .animated-blob {
     position: absolute;
     width: 500px;
     height: 500px;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(59, 130, 246, 0.3));
+    background: linear-gradient(135deg, rgba(128, 0, 32, 0.4), rgba(75, 0, 130, 0.4));
     border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
     filter: blur(60px);
     animation: blob-float 20s ease-in-out infinite;
@@ -132,7 +132,7 @@
 .blob-2 {
     top: 50%;
     right: 10%;
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(148, 163, 184, 0.2));
+    background: linear-gradient(135deg, rgba(75, 0, 130, 0.3), rgba(0, 0, 0, 0.3));
     animation-delay: -10s;
     animation-duration: 25s;
 }
@@ -351,4 +351,104 @@ textarea:focus {
 
 #mobileMenu.show {
     display: flex !important;
+}
+
+/* Animated Vertical Beams */
+.beam-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.beam {
+    position: absolute;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(180deg, 
+        transparent 0%, 
+        rgba(128, 0, 32, 0.6) 20%,
+        rgba(75, 0, 130, 0.8) 50%,
+        rgba(128, 0, 32, 0.6) 80%,
+        transparent 100%
+    );
+    opacity: 0;
+    animation: beam-slide 8s linear infinite;
+}
+
+.beam:nth-child(1) {
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.beam:nth-child(2) {
+    left: 25%;
+    animation-delay: 2s;
+}
+
+.beam:nth-child(3) {
+    left: 40%;
+    animation-delay: 4s;
+}
+
+.beam:nth-child(4) {
+    left: 60%;
+    animation-delay: 1s;
+}
+
+.beam:nth-child(5) {
+    left: 75%;
+    animation-delay: 3s;
+}
+
+.beam:nth-child(6) {
+    left: 90%;
+    animation-delay: 5s;
+}
+
+@keyframes beam-slide {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+/* Gradient Background Overlays */
+.gradient-bg {
+    background: linear-gradient(135deg, 
+        #000000 0%, 
+        #1a0a1f 25%, 
+        #2d0a3d 50%, 
+        #1a0a1f 75%, 
+        #000000 100%
+    );
+}
+
+.gradient-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 50% 50%, 
+        rgba(128, 0, 32, 0.15) 0%, 
+        rgba(75, 0, 130, 0.1) 50%, 
+        transparent 100%
+    );
+    pointer-events: none;
+    z-index: 0;
 }

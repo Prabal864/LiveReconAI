@@ -112,6 +112,15 @@ body {
 .bg-dark-bg { background-color: #0a0a0a; }
 .bg-dark-card { background-color: #141414; }
 .border-dark-border { border-color: #1f1f1f; }
+.gradient-bg { 
+    background: linear-gradient(135deg, 
+        #000000 0%, 
+        #1a0a1f 25%, 
+        #2d0a3d 50%, 
+        #1a0a1f 75%, 
+        #000000 100%
+    );
+}
 
 /* Cursor */
 [cursor="pointer"] { cursor: pointer; }
