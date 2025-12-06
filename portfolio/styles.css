@@ -428,16 +428,6 @@ textarea:focus {
 }
 
 /* Gradient Background Overlays */
-.gradient-bg {
-    background: linear-gradient(135deg, 
-        #000000 0%, 
-        #1a0a1f 25%, 
-        #2d0a3d 50%, 
-        #1a0a1f 75%, 
-        #000000 100%
-    );
-}
-
 .gradient-overlay {
     position: absolute;
     top: 0;
