@@ -385,7 +385,7 @@ services:
       SPRING_CONFIG_IMPORT: "configserver:http://configserver:8084/"
 
   configserver:
-    image: prabal864/livereconai:config-v2
+    image: prabal864/livereconai:config-v3
     container_name: configserver-ms
     ports:
       - "8084:8084"
