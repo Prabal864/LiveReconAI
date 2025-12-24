@@ -310,7 +310,7 @@ services:
 
 
   account:
-    image:  prabal864/livereconai:account-v2
+    image:  prabal864/livereconai:account-v4
     container_name: accountservice
     ports:
         - "8082:8082"
@@ -324,28 +324,11 @@ services:
           condition: service_healthy
       eurekaserver:
         condition: service_healthy
-    networks:
-      - FinancePilot
-
-  auth:
-    image: prabal864/livereconai:auth-v1
-    container_name: authservice
-    ports:
-      - "8081:8081"
-    deploy:
-      resources:
-        limits:
-          cpus: 1
-          memory: 516M
-    depends_on:
-      configserver:
-        condition: service_healthy
-      eurekaserver:
-        condition: service_healthy
     environment:
+      RABBITMQ_HOST: "rabbit"
       SPRING_CONFIG_IMPORT: "configserver:http://configserver:8084/"
-      SPRING_RABBITMQ_HOST: "rabbit"
-      SPRING_DATA_REDIS_HOST: "redis"
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eurekaserver:8761/eureka/"
+
     networks:
       - FinancePilot
 
@@ -361,7 +344,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-
     deploy:
       resources:
         limits:
@@ -374,6 +356,7 @@ services:
       SPRING_CONFIG_IMPORT: "configserver:http://configserver:8084/"
       SPRING_RABBITMQ_HOST: "rabbit"
       SPRING_DATA_REDIS_HOST: "redis"
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eurekaserver:8761/eureka/"
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI: "http://keycloak:8080/realms/master/protocol/openid-connect/certs"
 
   eurekaserver:
@@ -425,6 +408,7 @@ services:
       - FinancePilot
     environment:
       SPRING_RABBITMQ_HOST: "rabbit"
+      SERVER_PORT: 8084
 
 networks:
   FinancePilot:
