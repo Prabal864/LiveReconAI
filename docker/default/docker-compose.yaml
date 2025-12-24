@@ -385,7 +385,7 @@ services:
       SPRING_CONFIG_IMPORT: "configserver:http://configserver:8084/"
 
   configserver:
-    image: prabal864/livereconai:config-v1
+    image: prabal864/livereconai:config-v2
     container_name: configserver-ms
     ports:
       - "8084:8084"
@@ -409,6 +409,7 @@ services:
     environment:
       SPRING_RABBITMQ_HOST: "rabbit"
       SERVER_PORT: 8084
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eurekaserver:8761/eureka/"
 
 networks:
   FinancePilot:
