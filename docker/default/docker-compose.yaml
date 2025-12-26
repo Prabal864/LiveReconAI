@@ -332,6 +332,30 @@ services:
     networks:
       - FinancePilot
 
+  auth:
+    image: prabal864/livereconai:auth-v2
+    container_name: authservice
+    ports:
+      - "8086:8086"
+    deploy:
+      resources:
+        limits:
+          cpus: 1.25
+          memory: 516M
+    depends_on:
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    environment:
+      RABBITMQ_HOST: "rabbit"
+      SPRING_CONFIG_IMPORT: "optional:configserver:http://configserver:8084/"
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eurekaserver:8761/eureka/"
+
+    networks:
+      - FinancePilot
+
+
   gatewayserver:
     image: prabal864/livereconai:gateway-v3
     container_name: Gateway_MS
