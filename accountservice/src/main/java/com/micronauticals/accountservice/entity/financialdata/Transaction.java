@@ -53,6 +53,16 @@ public class Transaction {
         return "TYPE#"+type;
     }
 
+
+    @DynamoDbSecondaryPartitionKey(indexNames = "pk_GSI_3-sk_GSI_3-index")
+    public String getPk_GSI_3(){ return "ACCOUNT#" + accountNumber;}
+
+    @DynamoDbSecondarySortKey(indexNames = "pk_GSI_3-sk_GSI_3-index")
+    public String getSk_GSI_3(String sk_GSI_3){
+        return "NARRATION#" + narration + "#AMOUNT#" + String.format("%.2f", amount);
+    }
+
+
     public void setPk_GSI_1(String pk_GSI_1) {
         this.pk_GSI_1 = pk_GSI_1;
     }
