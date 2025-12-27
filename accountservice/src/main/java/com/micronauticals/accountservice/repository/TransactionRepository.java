@@ -6,15 +6,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
-import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteItemEnhancedRequest;
-import software.amazon.awssdk.enhanced.dynamodb.model.Page;
-import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
-import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
-import software.amazon.awssdk.enhanced.dynamodb.model.WriteBatch;
+import software.amazon.awssdk.core.pagination.sync.SdkIterable;
+import software.amazon.awssdk.enhanced.dynamodb.*;
+import software.amazon.awssdk.enhanced.dynamodb.model.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -209,18 +203,20 @@ public class TransactionRepository {
      * Find all transactions for a specific account
      */
     public List<Transaction> findByAccountNumber(String accountNumber) {
+        log.info("Finding all transactions for account {} using GSI 3, user: {}", accountNumber, defaultUserId);
+        DynamoDbIndex<Transaction> gsi3Index = transactionTable.index("pk_GSI_3-sk_GSI_3-index");
         QueryConditional queryConditional = QueryConditional
                 .keyEqualTo(Key.builder()
                         .partitionValue("ACCOUNT#" + accountNumber)
                         .build());
 
-        log.info("Finding all transactions for account {}, user: {}",
-                accountNumber, defaultUserId);
-
-        PageIterable<Transaction> pages = transactionTable.query(queryConditional);
+        SdkIterable<Page<Transaction>> pages = gsi3Index.query(QueryEnhancedRequest.builder()
+                .queryConditional(queryConditional)
+                .build());
 
         List<Transaction> transactions = new ArrayList<>();
-        pages.items().forEach(transactions::add);
+        pages.forEach(page -> transactions.addAll(page.items()));
+        log.info("Found {} transactions for account {}", transactions.size(), accountNumber);
         return transactions;
     }
 
