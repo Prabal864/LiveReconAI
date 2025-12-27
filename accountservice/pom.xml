@@ -36,6 +36,11 @@
             <version>2.2.34</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.14</version>
+        </dependency>
+        <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>dynamodb-enhanced</artifactId>
             <version>2.25.67</version>
@@ -147,7 +152,7 @@
                         <image>prabal864/java-spring:base-with-curl</image>
                     </from>
                     <to>
-                        <image>prabal864/livereconai:account-v4</image>
+                        <image>prabal864/livereconai:account-test-v1</image>
                     </to>
                 </configuration>
             </plugin>
