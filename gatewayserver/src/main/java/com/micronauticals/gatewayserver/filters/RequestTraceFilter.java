@@ -3,7 +3,6 @@ package com.micronauticals.gatewayserver.filters;
 import com.micronauticals.gatewayserver.utility.FilterUtility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.actuate.info.JavaInfoContributor;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.annotation.Order;
@@ -34,7 +33,7 @@ public class RequestTraceFilter implements GlobalFilter {
     }
 
     private boolean isCorrelationIDPresent(HttpHeaders requestHttpHeaders){
-        return filterUtility.getCorrelationID(requestHttpHeaders) != null?true:false;
+        return filterUtility.getCorrelationID(requestHttpHeaders) != null;
     }
 
     private String generateCorrelationId(){

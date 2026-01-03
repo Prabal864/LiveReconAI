@@ -16,7 +16,7 @@ public class ResponseTraceFilter {
     private final FilterUtility filterUtility;
 
     @Bean
-    public GlobalFilter postGlobaFilter(){
+    public GlobalFilter postGlobalFilter(){
         return (exchange, chain) -> chain.filter(exchange).then(Mono.fromRunnable(() -> {
             HttpHeaders requestHeaders = exchange.getRequest().getHeaders();
             String correlationId = filterUtility.getCorrelationID(requestHeaders);
