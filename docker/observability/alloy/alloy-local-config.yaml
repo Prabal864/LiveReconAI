@@ -4,7 +4,7 @@ discovery.docker "flog_scrape" {
 }
 
   discovery.relabel "flog_scrape" {
-  targets = []
+  targets = discovery.docker.flog_scrape.targets
   
   rule {
   source_labels = ["__meta_docker_container_name"]
