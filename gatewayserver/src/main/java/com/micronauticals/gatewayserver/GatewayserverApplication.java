@@ -49,6 +49,19 @@ public class GatewayserverApplication {
                         .requestRateLimiter(config -> config.setRateLimiter(redisRateLimiter()).setKeyResolver(keyResolver())))
                         .uri("lb://AUTH")
                 )
+                .route(p -> p.path("/livereconai/prod/v1/transaction/**")
+                        .filters(f->f.rewritePath(
+                                        "/livereconai/prod/v1/transaction/(?<segment>.*)",
+                                        "/${segment}")
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                                .retry(retryConfig -> retryConfig.setRetries(5)
+                                        .setMethods(HttpMethod.GET)
+                                        .setBackoff(Duration.ofMillis(100),Duration.ofMillis(1000),2,true)
+                                )
+                                .circuitBreaker(config -> config.setName("TransactionCircuitBreaker"))
+                                .requestRateLimiter(config -> config.setRateLimiter(redisRateLimiter()).setKeyResolver(keyResolver())))
+                        .uri("lb://TRANSACTION")
+                )
                 .build();
     }
 
