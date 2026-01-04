@@ -55,6 +55,15 @@ public class SetuAuthServiceImpl implements SetuAuthService {
     @Value("${setu.product.instance.id}")
     private String productInstanceID;
 
+    @Value("${setu.grantType}")
+    private String grantType;
+
+    @Value("${setu.clientID}")
+    private String clientID;
+
+    @Value("${setu.secret}")
+    private String secret;
+
     private static final String SETU_LOGIN_URL = "https://orgservice-prod.setu.co/v1/users/login";
     private static final String SETU_CONSENT_URL = "https://fiu-sandbox.setu.co/v2/consents";
     private static final Logger log = LoggerFactory.getLogger(SetuAuthServiceImpl.class);
@@ -64,7 +73,7 @@ public class SetuAuthServiceImpl implements SetuAuthService {
     private String refreshToken;
 
     @Override
-    public SetuLoginResponse login(SetuLoginRequest request) {
+    public SetuLoginResponse login() {
         try {
             WebClient webClient = webClientBuilder.build();
 
@@ -73,9 +82,9 @@ public class SetuAuthServiceImpl implements SetuAuthService {
                     .header("client", "bridge")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(Map.of(
-                            "grant_type", request.getGrant_type(),
-                            "clientID", request.getClientID(),
-                            "secret", request.getSecret()
+                            "grant_type", grantType,
+                            "clientID", clientID,
+                            "secret", secret
                     ))
                     .retrieve()
                     .onStatus(HttpStatusCode::isError, clientResponse -> {

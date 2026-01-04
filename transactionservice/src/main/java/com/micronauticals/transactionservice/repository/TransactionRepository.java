@@ -209,24 +209,32 @@ public class TransactionRepository {
     }
 
     /**
-     * Find all transactions for a specific consent ID
+     * Find all transactions for a specific consent ID using partition key query
+     * This is much faster and more cost-effective than scanning the entire table
      */
     public List<Transaction> findByConsentId(String consentId) {
-        log.info("Finding transactions for consent {}, user: {}",
+        log.info("Finding transactions for consent {} using partition key query, user: {}",
                 consentId, defaultUserId);
 
+        // Build the partition key value
+        String partitionKey = "CONSENTID#" + consentId;
+
+        // Create query conditional for partition key
+        QueryConditional queryConditional = QueryConditional
+                .keyEqualTo(Key.builder()
+                        .partitionValue(partitionKey)
+                        .build());
+
+        // Execute query
+        SdkIterable<Page<Transaction>> pages = transactionTable.query(QueryEnhancedRequest.builder()
+                .queryConditional(queryConditional)
+                .build());
+
+        // Collect all results
         List<Transaction> allTransactions = new ArrayList<>();
-        PageIterable<Transaction> pages = transactionTable.scan();
+        pages.forEach(page -> allTransactions.addAll(page.items()));
 
-        for (Page<Transaction> page : pages) {
-            for (Transaction txn : page.items()) {
-                if (consentId.equals(txn.getConsentId())) {
-                    allTransactions.add(txn);
-                }
-            }
-        }
-
-        log.info("Found {} transactions for consent {}",
+        log.info("Found {} transactions for consent {} using efficient query",
                 allTransactions.size(), consentId);
         return allTransactions;
     }
