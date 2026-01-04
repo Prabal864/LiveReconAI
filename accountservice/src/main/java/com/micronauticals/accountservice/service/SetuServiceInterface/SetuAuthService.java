@@ -12,7 +12,7 @@ import com.micronauticals.accountservice.Dto.response.financialdata.SetuLoginRes
 import reactor.core.publisher.Mono;
 
 public interface SetuAuthService {
-    SetuLoginResponse login(SetuLoginRequest request);
+    SetuLoginResponse login();
     Mono<ConsentResponse> createConsent(ConsentRequestDTO request);
     Mono<ConsentStatusResponseDTO> getConsentStatus(String consentId, boolean expanded);
     Mono<ConsentDataSessionResponseDTO> getDataSessionByConsentId(String consentId);

@@ -27,8 +27,8 @@ public class SetuAuthController {
     private final SetuAuthService setuAuthService;
 
     @PostMapping("/login")
-    public ResponseEntity<SetuLoginResponse> login(@RequestBody SetuLoginRequest request) {
-        SetuLoginResponse response = setuAuthService.login(request);
+    public ResponseEntity<SetuLoginResponse> login() {
+        SetuLoginResponse response = setuAuthService.login();
         return ResponseEntity.ok(response);
     }
 
