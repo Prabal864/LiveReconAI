@@ -16,7 +16,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortK
 @NoArgsConstructor
 @AllArgsConstructor
 public class Transaction {
-    // ...existing code...
+
     private String pk; // consentID
     private String sk; // Account Number + Txn TimeStamp
 
@@ -92,6 +92,6 @@ public class Transaction {
         return "ACCOUNT#" + accountNumber + "#TIMESTP#" + transactionTimestamp;
     }
 
-    // ...existing code...
+
 }
 

@@ -1,7 +1,7 @@
 package com.micronauticals.transactionservice.mapper;
 
 import com.micronauticals.transactionservice.dto.consent.ConsentResponse;
-import com.micronauticals.transactionservice.entity.financialdata.consent.Consent;
+import com.micronauticals.transactionservice.entity.consent.Consent;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

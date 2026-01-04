@@ -1,4 +1,4 @@
-package com.micronauticals.transactionservice.entity.financialdata.consent;
+package com.micronauticals.transactionservice.entity.consent;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
