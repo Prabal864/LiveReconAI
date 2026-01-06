@@ -126,7 +126,7 @@ Submits FI data block to create a session
 
 - [Setu Developer Docs](https://docs.setu.co)
 - [Account Aggregator Framework - Sahamati](https://sahamati.org.in/)
-- [DEPA by NITI Aayog](https://www.niti.gov.in/data-empowerment-protection-architecture)
+
 
 ---
 
@@ -142,6 +142,7 @@ Student | Backend Developer | DevOps Enthusiast
 ## 📌 Disclaimer
 
 This project is developed for educational/demo purposes using the Setu sandbox environment. No real user data is being used or stored.
+
 
 
 
