@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -13,6 +15,6 @@ import lombok.NoArgsConstructor;
 public class AuthResponse {
     private String accessToken;
     private String refreshToken;
-    private Long userId;
+    private UUID userId;
     private String username;
 }
