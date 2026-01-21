@@ -16,4 +16,6 @@ public interface UserService {
     Optional<User> findByUsername(String username);
     Optional<UserDto> findUserByPhoneNumber(String phoneNumber);
     Map<String, Object> verifyTokenForInternalService(String token);
+
+    ApiResponse addConsentToUser(String username, String consentId);
 }

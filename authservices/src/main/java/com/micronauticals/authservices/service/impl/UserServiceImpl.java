@@ -250,4 +250,22 @@ public class UserServiceImpl implements UserService {
 
         return result;
     }
+
+    @Override
+    public ApiResponse addConsentToUser(String username, String consentId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (user.getConsentIds() == null) {
+            user.setConsentIds(new java.util.ArrayList<>());
+        }
+
+        if (!user.getConsentIds().contains(consentId)) {
+            user.getConsentIds().add(consentId);
+            userRepository.save(user);
+        }
+
+        return new ApiResponse(true, "ConsentId saved for user");
+    }
 }
+

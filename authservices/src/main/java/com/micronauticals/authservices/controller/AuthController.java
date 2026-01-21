@@ -92,4 +92,9 @@ public class AuthController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @PostMapping("/internal/user/consent")
+    public ResponseEntity<ApiResponse> addConsentToUser(@Valid @RequestBody SaveConsentRequest request) {
+        return ResponseEntity.ok(userService.addConsentToUser(request.getUsername(), request.getConsentId()));
+    }
 }

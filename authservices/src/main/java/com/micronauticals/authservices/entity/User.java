@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,8 +43,13 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @Embedded
-    private Consent consent;
+    @ElementCollection
+    @CollectionTable(
+            name = "user_consents",
+            joinColumns = @JoinColumn(name = "user_id")
+    )
+    @Column(name = "consent_id")
+    private List<String> consentIds = new ArrayList<>();
 
     private LocalDateTime createdAt;
 
@@ -53,31 +59,6 @@ public class User {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-    }
-
-    @Embeddable
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Consent{
-
-        @ElementCollection
-        @CollectionTable(name = "consent_sessions", joinColumns = @JoinColumn(name = "user_id"))
-        private List<DataSessions> sessions;
-        private String traceId;
-
-        @Column(name = "consent_id")
-        private String consentId;
-
-        @Embeddable
-        @Builder
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class DataSessions{
-            private String sessionId;
-            private String status;
-            private String createdAt;
-        }
     }
 
     @PreUpdate
