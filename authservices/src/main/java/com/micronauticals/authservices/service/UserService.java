@@ -5,6 +5,7 @@ import com.micronauticals.authservices.entity.User;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface UserService {
     AuthResponse registerUser(RegisterRequest registerRequest);
@@ -18,4 +19,8 @@ public interface UserService {
     Map<String, Object> verifyTokenForInternalService(String token);
 
     ApiResponse addConsentToUser(String username, String consentId);
+
+    UserConsentsResponse getUserConsents(String username);
+
+    UserConsentsResponse getUserConsentsByUserId(UUID userId);
 }

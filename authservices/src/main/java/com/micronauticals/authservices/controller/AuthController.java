@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -63,31 +64,31 @@ public class AuthController {
 
     @PostMapping("/internal/verify")
     public ResponseEntity<Map<String, Object>> verifyTokenInternal(
-            @RequestHeader("Authorization") 
+            @RequestHeader("Authorization")
             @NotBlank(message = "Authorization header is required")
             String authHeader) {
-        
+
         if (!authHeader.startsWith("Bearer ")) {
             return ResponseEntity.badRequest().build();
         }
-        
+
         String token = authHeader.substring(7); // Remove "Bearer " prefix
-        
+
         if (token.trim().isEmpty()) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Token cannot be empty"));
         }
-        
+
         return ResponseEntity.ok(userService.verifyTokenForInternalService(token));
     }
 
     @GetMapping("/internal/user/phone/{phoneNumber}")
     public ResponseEntity<UserDto> getUserByPhoneNumber(
-            @PathVariable 
+            @PathVariable
             @NotBlank(message = "Phone number is required")
             @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Invalid phone number format")
             String phoneNumber) {
-        
+
         return userService.findUserByPhoneNumber(phoneNumber)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -96,5 +97,10 @@ public class AuthController {
     @PostMapping("/internal/user/consent")
     public ResponseEntity<ApiResponse> addConsentToUser(@Valid @RequestBody SaveConsentRequest request) {
         return ResponseEntity.ok(userService.addConsentToUser(request.getUsername(), request.getConsentId()));
+    }
+
+    @GetMapping("/internal/user/{userId}/consents")
+    public ResponseEntity<com.micronauticals.authservices.dto.UserConsentsResponse> getUserConsentsByUserId(@PathVariable UUID userId) {
+        return ResponseEntity.ok(userService.getUserConsentsByUserId(userId));
     }
 }

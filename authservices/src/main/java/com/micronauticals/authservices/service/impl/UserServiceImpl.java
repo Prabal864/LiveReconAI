@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -267,5 +268,26 @@ public class UserServiceImpl implements UserService {
 
         return new ApiResponse(true, "ConsentId saved for user");
     }
-}
 
+    @Override
+    public UserConsentsResponse getUserConsents(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return UserConsentsResponse.builder()
+                .username(user.getUsername())
+                .consentIds(user.getConsentIds())
+                .build();
+    }
+
+    @Override
+    public UserConsentsResponse getUserConsentsByUserId(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return UserConsentsResponse.builder()
+                .username(user.getUsername())
+                .consentIds(user.getConsentIds())
+                .build();
+    }
+}
