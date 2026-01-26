@@ -26,4 +26,13 @@ public class Fip {
 
     @OneToMany(mappedBy = "fip", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FiAccount> accounts;
+
+    @Override
+    public String toString() {
+        return "Fip{" +
+                "id=" + id +
+                ", fipID='" + fipID + '\'' +
+                ", accounts=" + (accounts != null ? accounts.stream().map(a -> a.getId()).toList() : null) +
+                '}';
+    }
 }

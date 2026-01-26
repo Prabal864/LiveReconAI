@@ -149,4 +149,13 @@ public class FiAccount {
         private String amount;
         private String transactionType;
     }
+
+    @Override
+    public String toString() {
+        return "FiAccount{" +
+                "id=" + id +
+                ", maskedAccNumber='" + maskedAccNumber + '\'' +
+                ", fipId=" + (fip != null ? fip.getId() : null) +
+                '}';
+    }
 }
