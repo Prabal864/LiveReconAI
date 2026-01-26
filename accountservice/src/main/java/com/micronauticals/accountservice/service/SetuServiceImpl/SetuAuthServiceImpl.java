@@ -253,6 +253,7 @@ public class SetuAuthServiceImpl implements SetuAuthService {
 
                         // Step 1: Map DTO to entity and save to PostgreSQL
                         FiDataBundle fiDataBundle = fipResponseDtoToEntityMapper.mapToEntity(response);
+                        log.info(String.valueOf(fiDataBundle));
                         FiDataBundle savedBundle = fiDataRepository.save(fiDataBundle);
                         log.info("Saved FiDataBundle with ID: {} to PostgreSQL, user: {}",
                                 savedBundle.getId());
