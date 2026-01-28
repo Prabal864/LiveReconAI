@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -20,6 +21,7 @@ import reactor.core.scheduler.Schedulers;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -33,6 +35,7 @@ public class TransactionService implements com.micronauticals.transactionservice
     private final TransactionRepository transactionRepository;
     private final WebClient.Builder webClientBuilder;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final String RAG_SERVICE_URL = "http://localhost:9000/ingest";
 
     @Override
     public Mono<FIPResponseDTO> getFiData(String sessionId, String authorization) {
@@ -98,6 +101,44 @@ public class TransactionService implements com.micronauticals.transactionservice
                 .doOnError(error -> log.error("Failed to process financial data, user: {}, error: {}"
                         , error.getMessage(), error));
     }
+
+
+    /**
+     * Sends transactions to the RAG service ingest endpoint
+     * @param transactions List of transactions to send
+     * @return Mono<Void> indicating completion
+     */
+    public Mono<Void> sendTransactionsToRagService(List<Transaction> transactions) {
+        log.info("⚡ sendTransactionsToRagService called with {} transactions", transactions.size());
+
+        WebClient webClient = webClientBuilder.build();
+        
+        // Wrap transactions in the required format
+        Map<String, List<Transaction>> requestBody = Map.of("context_data", transactions);
+
+        log.info("📤 Sending {} transactions to RAG service at {}", transactions.size(), RAG_SERVICE_URL);
+        log.debug("Request body contains context_data with {} items", requestBody.get("context_data").size());
+
+        return webClient.post()
+                .uri(RAG_SERVICE_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .retrieve()
+                .onStatus(status -> !status.is2xxSuccessful(), response -> {
+                    log.error("❌ Failed to send transactions to RAG service. HTTP Status: {}", response.statusCode());
+                    return response.bodyToMono(String.class)
+                            .flatMap(errorBody -> {
+                                log.error("RAG service error body: {}", errorBody);
+                                return Mono.error(new RuntimeException("Error sending to RAG service: " + errorBody));
+                            });
+                })
+                .bodyToMono(Void.class)
+                .doOnSubscribe(subscription -> log.info("🔔 WebClient subscription activated"))
+                .doOnSuccess(v -> log.info("✅ Successfully sent {} transactions to RAG service", transactions.size()))
+                .doOnError(error -> log.error("❌ Error sending transactions to RAG service: {}", error.getMessage(), error))
+                .doFinally(signalType -> log.info("🏁 RAG service call finished with signal: {}", signalType));
+    }
+
 
     @Override
     public Mono<DataRefreshPull> refreshDataPull(String sessionID, boolean restart) {
