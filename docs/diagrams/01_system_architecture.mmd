@@ -1,0 +1,68 @@
+graph TB
+    subgraph CLIENT["🖥️ CLIENT LAYER"]
+        FE["React + Vite Frontend<br/>(Netlify CDN)<br/>📊 Dashboard | 💳 Transactions<br/>🔐 Consents | 🤖 AI Assistant"]
+    end
+
+    subgraph GATEWAY["🔀 API GATEWAY LAYER (Port 8072)"]
+        GW["Spring Cloud Gateway<br/>🔒 JWT Validation | 🚦 Rate Limiting<br/>🔄 Load Balancing | 🌐 CORS<br/>⚡ Circuit Breaking"]
+    end
+
+    subgraph SERVICES["⚙️ MICROSERVICES LAYER"]
+        AS["🔐 Auth Service<br/>Port 8081<br/>JWT Auth · User Mgmt<br/>Session Control"]
+        AC["🏦 Account Service<br/>Port 8080<br/>Setu AA · Consent Flow<br/>Webhook Handler"]
+        TS["💳 Transaction Service<br/>Port 8082<br/>FI Data · CRUD<br/>Export PDF/Excel/CSV"]
+        RS["🧠 RAG / AI Service<br/>Port 9000<br/>FastAPI · LangChain<br/>FAISS · LLM (OpenRouter)"]
+        CS["⚙️ Config Server<br/>Spring Cloud Config<br/>Centralized Config Mgmt"]
+    end
+
+    subgraph DATA["🗄️ DATA LAYER"]
+        DB1["AWS DynamoDB<br/>Users · Consents<br/>Transactions · Accounts"]
+        DB2["PostgreSQL<br/>Chat History<br/>RAG State"]
+        VDB["FAISS Vector Store<br/>Transaction Embeddings<br/>Per-User Isolation"]
+    end
+
+    subgraph EXTERNAL["🌐 EXTERNAL SERVICES"]
+        SETU["Setu AA API<br/>Consent · FI Data<br/>Webhooks"]
+        LLM["OpenRouter API<br/>LLM Inference<br/>GPT · Llama · Phi-3"]
+        HF["HuggingFace<br/>all-MiniLM-L6-v2<br/>Embeddings"]
+    end
+
+    subgraph INFRA["☸️ INFRASTRUCTURE"]
+        K8S["Kubernetes Cluster<br/>Pods · Services · HPA<br/>ConfigMaps · Ingress"]
+        DOC["Docker Compose<br/>Local Dev & Staging"]
+    end
+
+    FE -->|HTTPS| GW
+    GW -->|Route| AS
+    GW -->|Route| AC
+    GW -->|Route| TS
+    GW -->|Route| RS
+    CS -.->|Config| AS
+    CS -.->|Config| AC
+    CS -.->|Config| TS
+    CS -.->|Config| GW
+    AS --> DB1
+    AC --> DB1
+    TS --> DB1
+    RS --> DB2
+    RS --> VDB
+    AC -->|Consent API| SETU
+    SETU -->|Webhook| AC
+    RS -->|LLM Call| LLM
+    RS -->|Embeddings| HF
+    K8S -.->|Orchestrates| SERVICES
+    DOC -.->|Dev Deploy| SERVICES
+
+    classDef clientStyle fill:#61DAFB,stroke:#0097a7,color:#000
+    classDef gatewayStyle fill:#6DB33F,stroke:#388E3C,color:#fff
+    classDef serviceStyle fill:#FF9900,stroke:#F57C00,color:#fff
+    classDef dataStyle fill:#326CE5,stroke:#1565C0,color:#fff
+    classDef externalStyle fill:#9C27B0,stroke:#6A1B9A,color:#fff
+    classDef infraStyle fill:#607D8B,stroke:#37474F,color:#fff
+
+    class FE clientStyle
+    class GW gatewayStyle
+    class AS,AC,TS,RS,CS serviceStyle
+    class DB1,DB2,VDB dataStyle
+    class SETU,LLM,HF externalStyle
+    class K8S,DOC infraStyle

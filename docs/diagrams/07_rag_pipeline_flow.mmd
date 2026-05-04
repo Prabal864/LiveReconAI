@@ -1,0 +1,54 @@
+flowchart TD
+    Q(["💬 User Query\n(Text Input)"])
+    FE["Frontend:\nPOST /ai/prompt"]
+    DETECT["🔍 Query Mode Detector\n(query_mode.py)"]
+
+    Q --> FE --> DETECT
+
+    DETECT -->|"Keywords: specific txn,\nfind, search, show"| VM["🔵 VECTOR_SEARCH Mode"]
+    DETECT -->|"Keywords: summary, analysis,\ntrend, pattern, total, count"| AM["🟠 ANALYTICAL Mode"]
+    DETECT -->|"Keywords: calculate, average,\nhighest, lowest, statistics"| SM["🟢 STATISTICAL Mode"]
+    DETECT -->|"Broad query,\nmixed keywords"| SFM["🟣 SMART_FULL Mode"]
+
+    subgraph VS["Vector Search Pipeline"]
+        VM --> VE["Embed Query\n(MiniLM-L6-v2)"]
+        VE --> FAISS["FAISS k-NN Search\n(k=50 matches)"]
+        FAISS --> VDocs["Retrieve Top-50\nDocuments"]
+        VDocs --> VLLM["LLM with\nVector Context"]
+    end
+
+    subgraph ANAL["Analytical Pipeline"]
+        AM --> FULLSCAN["Full Dataset Scan\n(All Transactions)"]
+        FULLSCAN --> STATS["Compute Statistics:\n• Type breakdown\n• Monthly analysis\n• Mode distribution"]
+        STATS --> SAMPLE["Sample Selection\n(Representative Txns)"]
+        SAMPLE --> ALLM["LLM with\nFull Context"]
+    end
+
+    subgraph STAT["Statistical Pipeline"]
+        SM --> FE2["Filter Extraction\n(date, amount, type, mode)"]
+        FE2 --> CALC["Direct Computation:\n• Count, Sum, Avg\n• Min/Max values"]
+        CALC --> FMT["Format Response\n(No LLM needed)"]
+    end
+
+    subgraph SF["Smart Full Pipeline"]
+        SFM --> FILTER["Apply Filters\n(NLP extraction)"]
+        FILTER --> LLMSF["LLM Conversational\nAnswer"]
+    end
+
+    VLLM --> RESP
+    ALLM --> RESP
+    FMT --> RESP
+    LLMSF --> RESP
+
+    RESP["📤 Response Formatter\n• Language Detection (EN/HI/Hinglish)\n• Table Formatting\n• Statistics Summary"]
+    
+    RESP -->|"Non-streaming"| JSON["JSON Response\n{answer, mode, transactions,\npagination, statistics}"]
+    RESP -->|"Streaming (/query/stream)"| SSE["SSE Stream\nmetadata → chunks → done"]
+
+    JSON --> USER(["👤 User\nSees Results"])
+    SSE --> USER
+
+    style VM fill:#e3f2fd,stroke:#1E88E5,color:#0D47A1
+    style AM fill:#fff3e0,stroke:#FB8C00,color:#E65100
+    style SM fill:#e8f5e9,stroke:#43A047,color:#1B5E20
+    style SFM fill:#f3e5f5,stroke:#8E24AA,color:#4A148C

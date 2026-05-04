@@ -1,0 +1,88 @@
+gitGraph
+    commit id: "Initial project setup"
+
+    branch feature/auth-service
+    checkout feature/auth-service
+    commit id: "JWT auth foundation"
+    commit id: "User registration/login"
+    commit id: "Spring Security RBAC"
+    commit id: "DynamoDB user persistence"
+
+    checkout main
+    branch feature/config-service
+    checkout feature/config-service
+    commit id: "Spring Cloud Config setup"
+    commit id: "Multi-profile config (dev/prod)"
+
+    checkout main
+    branch feature/account-service
+    checkout feature/account-service
+    commit id: "Setu AA client integration"
+    commit id: "Consent lifecycle management"
+    commit id: "Webhook listener for FI data"
+    commit id: "Account linking & FIP discovery"
+
+    checkout main
+    branch feature/transaction-service
+    checkout feature/transaction-service
+    commit id: "FI data parsing"
+    commit id: "DynamoDB transaction CRUD"
+    commit id: "Transaction categorization"
+    commit id: "PDF/Excel/CSV export"
+    commit id: "Analytics & money flow"
+
+    checkout main
+    branch feature/ai-service
+    checkout feature/ai-service
+    commit id: "FastAPI RAG service bootstrap"
+    commit id: "HuggingFace MiniLM embeddings"
+    commit id: "FAISS vector store per-user"
+    commit id: "LangChain LLM orchestration"
+    commit id: "Query mode detection"
+    commit id: "SSE streaming /query/stream"
+    commit id: "Multilingual support EN/HI/Hinglish"
+
+    checkout main
+    branch feature/gateway-server
+    checkout feature/gateway-server
+    commit id: "Spring Cloud Gateway setup"
+    commit id: "JWT validation filter"
+    commit id: "Rate limiting config"
+    commit id: "Circuit breaker (Resilience4j)"
+    commit id: "CORS policy"
+
+    checkout main
+    branch feature/frontend
+    checkout feature/frontend
+    commit id: "React + Vite project scaffold"
+    commit id: "Dashboard with Recharts"
+    commit id: "Consent management UI"
+    commit id: "AI chat interface"
+    commit id: "Transaction export UI"
+    commit id: "Dark/light mode"
+
+    checkout main
+    branch feature/devOps
+    checkout feature/devOps
+    commit id: "Docker Compose multi-container"
+    commit id: "Kubernetes manifests"
+    commit id: "K8s Dashboard setup"
+    commit id: "HPA & resource limits"
+
+    checkout main
+    branch frontend
+    checkout frontend
+    commit id: "Landing page (LiveReconAI)"
+    commit id: "Hero/features/CTA sections"
+    commit id: "Tailwind CSS v4 styling"
+
+    checkout main
+    merge feature/auth-service id: "Merge auth"
+    merge feature/config-service id: "Merge config"
+    merge feature/account-service id: "Merge account"
+    merge feature/transaction-service id: "Merge transactions"
+    merge feature/ai-service id: "Merge AI/RAG"
+    merge feature/gateway-server id: "Merge gateway"
+    merge feature/frontend id: "Merge frontend"
+    merge feature/devOps id: "Merge DevOps"
+    commit id: "v1.0 Production Release"

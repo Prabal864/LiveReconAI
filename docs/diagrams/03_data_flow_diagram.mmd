@@ -1,0 +1,61 @@
+flowchart TD
+    U(["👤 User"])
+    FE["🖥️ React Frontend\n(Netlify)"]
+    GW["🔀 API Gateway\n(Port 8072)"]
+    AS["🔐 Auth Service\n(Port 8081)"]
+    AC["🏦 Account Service\n(Port 8080)"]
+    TS["💳 Transaction Service\n(Port 8082)"]
+    RS["🧠 RAG Service\n(Port 9000)"]
+    DB["🗄️ AWS DynamoDB"]
+    PG["🐘 PostgreSQL"]
+    FAISS["🔍 FAISS\nVector Store"]
+    SETU["🌐 Setu AA API"]
+    LLM["🤖 LLM (OpenRouter)"]
+    EMB["📐 HuggingFace\nEmbeddings"]
+
+    U -->|"1. HTTP Requests"| FE
+    FE -->|"2. HTTPS/REST"| GW
+
+    GW -->|"3a. /auth/**"| AS
+    GW -->|"3b. /account/**"| AC
+    GW -->|"3c. /transactions/**"| TS
+    GW -->|"3d. /ai/**"| RS
+
+    AS -->|"4a. Read/Write Users"| DB
+    AC -->|"4b. Read/Write Consents"| DB
+    TS -->|"4c. Read/Write Transactions"| DB
+
+    AC -->|"5. Consent Request"| SETU
+    SETU -->|"6. Webhook: FI Data Ready"| AC
+    AC -->|"7. Fetch FI Data"| SETU
+    SETU -->|"8. Encrypted FI Data"| AC
+    AC -->|"9. Store Transactions"| TS
+
+    TS -->|"10. Send Transaction Data"| RS
+    RS -->|"11. Generate Embeddings"| EMB
+    EMB -->|"12. 384-dim Vectors"| RS
+    RS -->|"13. Store/Query Vectors"| FAISS
+
+    RS -->|"14. LLM Prompt + Context"| LLM
+    LLM -->|"15. AI Response (SSE)"| RS
+
+    RS -->|"16. Chat History"| PG
+    PG -->|"17. Retrieve History"| RS
+
+    RS -->|"18. Formatted Answer"| GW
+    GW -->|"19. Response"| FE
+    FE -->|"20. Render Results"| U
+
+    style U fill:#61DAFB,stroke:#0097a7,color:#000
+    style FE fill:#61DAFB,stroke:#0097a7,color:#000
+    style GW fill:#6DB33F,stroke:#388E3C,color:#fff
+    style AS fill:#FF9900,stroke:#F57C00,color:#fff
+    style AC fill:#FF9900,stroke:#F57C00,color:#fff
+    style TS fill:#FF9900,stroke:#F57C00,color:#fff
+    style RS fill:#FF9900,stroke:#F57C00,color:#fff
+    style DB fill:#326CE5,stroke:#1565C0,color:#fff
+    style PG fill:#336791,stroke:#1565C0,color:#fff
+    style FAISS fill:#9C27B0,stroke:#6A1B9A,color:#fff
+    style SETU fill:#00C7B7,stroke:#00897B,color:#fff
+    style LLM fill:#E53935,stroke:#B71C1C,color:#fff
+    style EMB fill:#FFA000,stroke:#F57F17,color:#fff
