@@ -1,0 +1,105 @@
+graph TD
+    subgraph AUTH["🔐 Auth Service (Port 8081)"]
+        A1["UserController"]
+        A2["AuthService"]
+        A3["JWTUtil"]
+        A4["UserRepository<br/>(DynamoDB)"]
+        A5["Spring Security Filter"]
+        A1 --> A2
+        A2 --> A3
+        A2 --> A4
+        A5 --> A3
+    end
+
+    subgraph ACCOUNT["🏦 Account Service (Port 8080)"]
+        B1["ConsentController"]
+        B2["ConsentService"]
+        B3["SetuClient"]
+        B4["WebhookController"]
+        B5["AccountRepository<br/>(DynamoDB)"]
+        B1 --> B2
+        B2 --> B3
+        B4 --> B2
+        B2 --> B5
+    end
+
+    subgraph TXN["💳 Transaction Service (Port 8082)"]
+        C1["TransactionController"]
+        C2["TransactionService"]
+        C3["FIDataParser"]
+        C4["ExportService<br/>PDF | Excel | CSV"]
+        C5["AnalyticsService"]
+        C6["TransactionRepository<br/>(DynamoDB)"]
+        C1 --> C2
+        C2 --> C3
+        C2 --> C4
+        C2 --> C5
+        C2 --> C6
+    end
+
+    subgraph GATEWAY["🔀 Gateway Server (Port 8072)"]
+        D1["RouteConfig"]
+        D2["JWTAuthFilter"]
+        D3["RateLimiterConfig"]
+        D4["CircuitBreakerConfig"]
+        D1 --> D2
+        D1 --> D3
+        D1 --> D4
+    end
+
+    subgraph RAG["🧠 RAG / AI Service (Port 9000)"]
+        E1["FastAPI Router"]
+        E2["/ingest Endpoint"]
+        E3["/prompt Endpoint"]
+        E4["/query/stream Endpoint"]
+        E5["RAGService"]
+        E6["EmbeddingService<br/>MiniLM-L6-v2"]
+        E7["FAISSVectorStore"]
+        E8["LLMOrchestrator<br/>(OpenRouter)"]
+        E9["QueryModeDetector"]
+        E10["FilterExtractor"]
+        E11["ChatHistoryManager<br/>(PostgreSQL)"]
+        E1 --> E2
+        E1 --> E3
+        E1 --> E4
+        E2 --> E5
+        E3 --> E5
+        E4 --> E5
+        E5 --> E6
+        E5 --> E7
+        E5 --> E8
+        E5 --> E9
+        E5 --> E10
+        E5 --> E11
+        E6 --> E7
+        E9 --> E8
+    end
+
+    subgraph CONFIG["⚙️ Config Server"]
+        F1["Spring Cloud Config"]
+        F2["application.yml<br/>dev | staging | prod"]
+        F1 --> F2
+    end
+
+    GATEWAY --> AUTH
+    GATEWAY --> ACCOUNT
+    GATEWAY --> TXN
+    GATEWAY --> RAG
+    CONFIG -.->|Config Push| AUTH
+    CONFIG -.->|Config Push| ACCOUNT
+    CONFIG -.->|Config Push| TXN
+    CONFIG -.->|Config Push| GATEWAY
+
+    classDef authStyle fill:#e8f5e9,stroke:#43A047,color:#1B5E20
+    classDef accountStyle fill:#e3f2fd,stroke:#1E88E5,color:#0D47A1
+    classDef txnStyle fill:#fff3e0,stroke:#FB8C00,color:#E65100
+    classDef gatewayStyle fill:#f3e5f5,stroke:#8E24AA,color:#4A148C
+    classDef ragStyle fill:#fce4ec,stroke:#E53935,color:#B71C1C
+    classDef configStyle fill:#e0f7fa,stroke:#00ACC1,color:#006064
+
+    class A1,A2,A3,A4,A5 authStyle
+    class B1,B2,B3,B4,B5 accountStyle
+    class C1,C2,C3,C4,C5,C6 txnStyle
+    class D1,D2,D3,D4 gatewayStyle
+    class E1,E2,E3,E4,E5,E6,E7,E8,E9,E10,E11 ragStyle
+    class F1,F2 configStyle

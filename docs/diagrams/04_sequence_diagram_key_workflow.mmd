@@ -1,0 +1,75 @@
+sequenceDiagram
+    actor User
+    participant FE as React Frontend
+    participant GW as API Gateway
+    participant AS as Auth Service
+    participant AC as Account Service
+    participant TS as Transaction Service
+    participant RS as RAG Service
+    participant SETU as Setu AA API
+    participant LLM as LLM (OpenRouter)
+    participant DB as DynamoDB
+
+    Note over User,DB: ─────── Phase 1: Authentication ───────
+    User->>FE: Enter credentials
+    FE->>GW: POST /auth/login
+    GW->>AS: Forward request
+    AS->>DB: Verify user credentials
+    DB-->>AS: User record (BCrypt hash match)
+    AS-->>GW: JWT Token (RS256 signed)
+    GW-->>FE: JWT Token + refresh token
+    FE-->>User: Dashboard loaded
+
+    Note over User,DB: ─────── Phase 2: Consent Creation ───────
+    User->>FE: Click "New Consent"
+    FE->>GW: POST /account/consents [Bearer JWT]
+    GW->>GW: JWT Validation ✅
+    GW->>AC: Forward: POST /consents
+    AC->>SETU: POST /consents (FIP, date range, frequency)
+    SETU-->>AC: Consent handle + redirect URL
+    AC->>DB: Store consent (PENDING status)
+    AC-->>GW: Consent URL
+    GW-->>FE: Consent URL
+    FE-->>User: Redirect to Setu approval page
+
+    Note over User,DB: ─────── Phase 3: Consent Approval & Data Fetch ───────
+    User->>SETU: Approve consent (Setu portal)
+    SETU->>AC: Webhook: CONSENT_APPROVED
+    AC->>DB: Update consent status → ACTIVE
+    AC->>SETU: POST /fetch (FI data request)
+    SETU-->>AC: Encrypted FI data (multi-bank)
+    AC->>TS: POST /transactions (parsed FI data)
+    TS->>DB: Bulk write transactions (GSI indexed)
+    TS-->>AC: 200 OK
+
+    Note over User,DB: ─────── Phase 4: AI Chat Query ───────
+    User->>FE: Select consent + click "Ingest Data"
+    FE->>GW: POST /ai/ingest [Bearer JWT]
+    GW->>RS: Forward: POST /ingest
+    RS->>DB: Fetch user transactions
+    DB-->>RS: Transaction list (JSON)
+    RS->>RS: Format transactions → Document text
+    RS->>RS: HuggingFace: Generate embeddings (384-dim)
+    RS->>RS: Build FAISS index (per user_id)
+    RS-->>FE: Ingestion complete
+
+    User->>FE: Type: "Show high-value UPI transactions"
+    FE->>GW: POST /ai/prompt [Bearer JWT]
+    GW->>RS: Forward: POST /prompt
+    RS->>RS: QueryModeDetector → VECTOR_SEARCH
+    RS->>RS: FilterExtractor → {mode: UPI, threshold: high}
+    RS->>RS: FAISS k-NN search (k=50)
+    RS->>LLM: Prompt + top-50 context (OpenRouter API)
+    LLM-->>RS: AI response stream (SSE chunks)
+    RS-->>FE: Stream: metadata → chunks → done
+    FE-->>User: Formatted table + analysis
+
+    Note over User,DB: ─────── Phase 5: Export ───────
+    User->>FE: Click "Export PDF"
+    FE->>GW: GET /transactions/export/pdf [Bearer JWT]
+    GW->>TS: Forward: GET /export/pdf
+    TS->>DB: Fetch all user transactions
+    DB-->>TS: Transactions
+    TS->>TS: Generate PDF (iText/Apache POI)
+    TS-->>FE: Binary PDF stream
+    FE-->>User: Download PDF file

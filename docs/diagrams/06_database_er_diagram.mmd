@@ -1,0 +1,83 @@
+erDiagram
+    USERS {
+        string userId PK
+        string username
+        string email
+        string passwordHash
+        string role
+        string sessionToken
+        datetime sessionExpiry
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    CONSENTS {
+        string consentId PK
+        string userId FK
+        string consentHandle
+        string status
+        string fipId
+        string dataRange
+        string frequency
+        datetime createdAt
+        datetime expiresAt
+        datetime approvedAt
+        datetime revokedAt
+    }
+
+    ACCOUNTS {
+        string accountId PK
+        string userId FK
+        string consentId FK
+        string accountNumber
+        string accountType
+        string bankName
+        string fipId
+        string linkedAt
+    }
+
+    TRANSACTIONS {
+        string txnId PK
+        string accountId FK
+        string userId FK
+        string consentId FK
+        float amount
+        string type
+        string mode
+        string narration
+        string referenceNumber
+        string status
+        string category
+        datetime createdAt
+        string pk_GSI_1
+        string sk_GSI_1
+    }
+
+    CHAT_HISTORY {
+        string historyId PK
+        string userId FK
+        string sessionId
+        string role
+        string content
+        string queryMode
+        int matchCount
+        datetime timestamp
+    }
+
+    FAISS_STORE {
+        string storeId PK
+        string userId FK
+        int transactionCount
+        int dimensions
+        datetime lastUpdated
+        bool isActive
+    }
+
+    USERS ||--o{ CONSENTS : "creates"
+    USERS ||--o{ ACCOUNTS : "owns"
+    USERS ||--o{ TRANSACTIONS : "has"
+    USERS ||--o{ CHAT_HISTORY : "generates"
+    USERS ||--|| FAISS_STORE : "has vector store"
+    CONSENTS ||--o{ ACCOUNTS : "links"
+    CONSENTS ||--o{ TRANSACTIONS : "provides data for"
+    ACCOUNTS ||--o{ TRANSACTIONS : "contains"
