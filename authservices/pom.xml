@@ -47,6 +47,14 @@
         <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
     <dependency>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-core</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-database-postgresql</artifactId>
+    </dependency>
+    <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-security</artifactId>
     </dependency>
@@ -157,7 +165,7 @@
                         <image>prabal864/java-spring:base-with-curl</image>
                     </from>
                     <to>
-                        <image>prabal864/livereconai:auth-v2</image>
+                        <image>prabal864/livereconai:auth-v3</image>
                     </to>
                 </configuration>
             </plugin>
